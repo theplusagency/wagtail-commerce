@@ -5,7 +5,7 @@
 /dist/
 /build/
 /MANIFEST
-/wagtailcommerce.egg-info/
+/wagtail_commerce.egg-info/
 /docs/_build/
 /.tox/
 /venv
