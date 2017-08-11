@@ -1,35 +1,64 @@
-class ShippingMethodBase(models.base.ModelBase):
-    """Metaclass for Page"""
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
+SHIPPING_MODEL_CLASSES = []
+
+
+class ShippingMethodBase(object):
+    """
+    Metaclass for Shipping Method
+    """
     def __init__(cls, name, bases, dct):
-        super(PageBase, cls).__init__(name, bases, dct)
-
-        if 'template' not in dct:
-            # Define a default template path derived from the app name and model name
-            cls.template = "%s/%s.html" % (cls._meta.app_label, camelcase_to_underscore(name))
-
-        if 'ajax_template' not in dct:
-            cls.ajax_template = None
-
-        cls._clean_subpage_models = None  # to be filled in on first call to cls.clean_subpage_models
-        cls._clean_parent_page_models = None  # to be filled in on first call to cls.clean_parent_page_models
-
-        # All pages should be creatable unless explicitly set otherwise.
-        # This attribute is not inheritable.
-        if 'is_creatable' not in dct:
-            cls.is_creatable = not cls._meta.abstract
+        super(ShippingMethodBase, cls).__init__(name, bases, dct)
 
         if not cls._meta.abstract:
             # register this type in the list of page content types
-            PAGE_MODEL_CLASSES.append(cls)
+            SHIPPING_MODEL_CLASSES.append(cls)
+
+        print(SHIPPING_MODEL_CLASSES)
 
 
-class ShippingMethod():
+class ShippingMethodQueryset(models.QuerySet):
+    pass
 
-    def calculate_cost(self, order):
+
+class BaseShippingMethodManager(models.Manager):
+    def get_queryset(self):
+        return ShippingMethodQueryset(self.model)
+
+
+ShippingMethodManager = BaseShippingMethodManager.from_queryset(ShippingMethodQueryset)
+
+
+class AbstractShippingMethod(object):
+    """
+    Abstract superclass for Page. According to Django's inheritance rules, managers set on
+    abstract models are inherited by subclasses, but managers set on concrete models that are extended
+    via multi-table inheritance are not. We therefore need to attach PageManager to an abstract
+    superclass to ensure that it is retained by subclasses of Page.
+    """
+    objects = ShippingMethodManager()
+
+    class Meta:
+        abstract = True
+
+
+class ShippingMethod(ShippingMethodBase, AbstractShippingMethod, models.Model):
+    store = models.ForeignKey('wtcstores.Store', related_name='shipping_methods')
+
+    def calculate_cost(self, order, address):
         """
-        Return the shipping cost 
+        Return the shipping cost
         """
         raise NotImplementedError
 
     def generate_shipment(self, order):
         raise NotImplementedError
+
+    class Meta:
+        verbose_name = _('shipping method')
+        verbose_name_plural = _('shipping methods')
+
+
+# class ShippingRecord(models.Model):
+#     pass

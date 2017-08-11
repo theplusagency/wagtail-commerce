@@ -9,6 +9,12 @@ class Currency(models.Model):
     code = models.CharField(_("code"), max_length=3, help_text=_("ISO 4217 3 letter code"))
     symbol = models.CharField(_("symbol"), max_length=30, help_text=_("As displayed on frontend"))
 
+    panels = [
+        FieldPanel('name'),
+        FieldPanel('code'),
+        FieldPanel('symbol')
+    ]
+
     def __str__(self):
         return "{} ({})".format(self.name, self.code)
 
@@ -27,7 +33,8 @@ class Store(models.Model):
     currency = models.ForeignKey(Currency, related_name="stores")
 
     panels = [
-        FieldPanel('site')
+        FieldPanel('site'),
+        FieldPanel('currency')
     ]
 
     def __str__(self):

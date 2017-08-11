@@ -1,5 +1,13 @@
-from wagtailcommerce.wtcstores.models import Store
 from wagtail.contrib.modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
+
+from wagtailcommerce.wtcstores.models import Currency, Store
+
+
+class CurrencyAdmin(ModelAdmin):
+    model = Currency
+    menu_icon = 'fa-money'
+    menu_order = 1000
+    list_display = ('name', 'code', 'symbol')
 
 
 class StoreAdmin(ModelAdmin):
@@ -13,6 +21,6 @@ class WagtailCommerceGroup(ModelAdminGroup):
     menu_label = 'Commerce'
     menu_icon = 'fa-shopping-cart'
     menu_order = 500
-    items = [StoreAdmin]
+    items = [CurrencyAdmin, StoreAdmin]
 
 modeladmin_register(WagtailCommerceGroup)
