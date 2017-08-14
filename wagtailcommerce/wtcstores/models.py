@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,6 +29,9 @@ class Store(models.Model):
     name = models.CharField(_("name"), max_length=128)
     site = models.OneToOneField('wagtailcore.Site', blank=True, null=True,
                                 on_delete=models.SET_NULL, related_name="store")
+    # TODO: allow multiple/dynamic tax rates
+    tax_rate = models.DecimalField(_("tax rate (percentage)"), decimal_places=2, max_digits=5,
+                                   validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     # TODO: allow multiple currencies
     currency = models.ForeignKey(Currency, related_name="stores")
