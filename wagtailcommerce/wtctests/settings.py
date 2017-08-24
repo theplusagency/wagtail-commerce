@@ -15,7 +15,7 @@ TIME_ZONE = 'Asia/Tokyo'
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('DATABASE_NAME', 'wagtail'),
+        'NAME': os.environ.get('DATABASE_NAME', 'wagtail_test'),
         'USER': os.environ.get('DATABASE_USER', None),
         'PASSWORD': os.environ.get('DATABASE_PASS', None),
         'HOST': os.environ.get('DATABASE_HOST', None),
@@ -138,6 +138,16 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
+
+    # 'wagtailcommerce.wtcanalytics',
+    # 'wagtailcommerce.wtccarts',
+    'wagtailcommerce.wtcaddresses',
+    'wagtailcommerce.wtcdashboard',
+    'wagtailcommerce.wtcorders',
+    'wagtailcommerce.wtcproducts',
+    'wagtailcommerce.wtcpromotions',
+    'wagtailcommerce.wtcshipping',
+    'wagtailcommerce.wtcstores',
 )
 
 
