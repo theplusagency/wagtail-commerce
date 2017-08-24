@@ -1,1 +1,1 @@
-default_app_config = 'wagtailcommerce.wtcproducts.apps.ProductsAppConfig'
+default_app_config = 'wagtailcommerce.wtcpayments.apps.PaymentsAppConfig'

@@ -1,1 +1,1 @@
-from .cart import CartView
+default_app_config = 'wagtailcommerce.wtcfrontend.apps.FrontendAppConfig'

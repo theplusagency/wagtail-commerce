@@ -6,8 +6,6 @@ from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, Group, Permission, PermissionsMixin)
 from django.db import models
 
-from .fields import ConvertedValueField
-
 
 class CustomUserManager(BaseUserManager):
     def _create_user(self, username, email, password,

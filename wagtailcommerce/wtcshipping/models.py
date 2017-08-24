@@ -89,5 +89,6 @@ class Shipment(models.Model):
         verbose_name_plural = _('shipments')
 
 
+# TODO: add shipping records
 # class ShippingRecord(models.Model):
 #     pass

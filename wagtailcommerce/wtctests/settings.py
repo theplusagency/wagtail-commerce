@@ -15,7 +15,7 @@ TIME_ZONE = 'Asia/Tokyo'
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('DATABASE_NAME', 'wagtail_test'),
+        'NAME': os.environ.get('DATABASE_NAME', 'wagtailcommerce_test'),
         'USER': os.environ.get('DATABASE_USER', None),
         'PASSWORD': os.environ.get('DATABASE_PASS', None),
         'HOST': os.environ.get('DATABASE_HOST', None),
@@ -108,8 +108,6 @@ INSTALLED_APPS = (
     # app which uses AppConfigs to test that hooks load properly
     'wagtail.wagtailredirects.apps.WagtailRedirectsAppConfig',
 
-    'wagtail.tests.testapp',
-    'wagtail.tests.customuser',
     'wagtail.contrib.wagtailstyleguide',
     'wagtail.contrib.wagtailroutablepage',
     'wagtail.contrib.wagtailfrontendcache',
@@ -148,6 +146,9 @@ INSTALLED_APPS = (
     'wagtailcommerce.wtcpromotions',
     'wagtailcommerce.wtcshipping',
     'wagtailcommerce.wtcstores',
+
+    'wagtailcommerce.wtctests.demoproducts',
+    'wagtailcommerce.wtctests.customuser',
 )
 
 

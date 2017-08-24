@@ -1,4 +1,4 @@
-from django.views import TemplateView
+from django.views.generic import TemplateView
 
 
 class CartView(TemplateView):
