@@ -1,10 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import six
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
+from treebeard.mp_tree import MP_Node
 from wagtail.wagtailadmin.edit_handlers import FieldPanel
 
 from .query import ProductQuerySet, ProductVariantQuerySet
@@ -29,22 +31,20 @@ def get_default_product_variant_content_type():
     return ContentType.objects.get_for_model(ProductVariant)
 
 
-# class Category(MPTTModel):
-#     name = models.CharField(_('name'), max_length=128)
-#     slug = models.SlugField(_('slug'), max_length=50)
-#     description = models.TextField(_('description'), blank=True)
-#     parent = TreeForeignKey('self', null=True, blank=True, related_name='children',
-#         verbose_name=_('parent'))
-# 
-#     objects = models.Manager()
-#     tree = TreeManager()
-# 
-#     def __str__(self):
-#         return self.name
-# 
-#     class Meta:
-#         verbose_name = _('category')
-#         verbose_name_plural = _('categories')
+class Category(MP_Node):
+    store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='categories')
+    name = models.CharField(_('name'), max_length=150)
+    slug = models.SlugField(_('slug'), max_length=50)
+    description = models.TextField(_('description'), blank=True)
+
+    node_order_by = ['name']
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('category')
+        verbose_name_plural = _('categories')
 
 
 class BaseProductManager(models.Manager):
@@ -77,9 +77,16 @@ class AbstractProduct(models.Model):
 class Product(six.with_metaclass(ProductBase, AbstractProduct, ClusterableModel)):
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='products')
     name = models.CharField(_('name'), max_length=150)
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        allow_unicode=True,
+        max_length=255,
+        help_text=_('The name of the product as it will appear in URLs e.g http://domain.com/store/[product-slug]/'))
+
+    categories = models.ManyToManyField(Category, blank=True, related_name='products')
+
     active = models.BooleanField(_('active'))
     available_on = models.DateTimeField(_('available on'), blank=True, null=True)
-    # categories = models.ManyToManyField(Category, verbose_name=_('categories'), related_name='products')
 
     content_type = models.ForeignKey(
         'contenttypes.ContentType',
@@ -93,8 +100,10 @@ class Product(six.with_metaclass(ProductBase, AbstractProduct, ClusterableModel)
     panels = [
         FieldPanel('store'),
         FieldPanel('name'),
+        FieldPanel('slug'),
         FieldPanel('active'),
         FieldPanel('available_on'),
+        FieldPanel('categories'),
     ]
 
     def __str__(self):
@@ -158,6 +167,28 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
         FieldPanel('price')
     ]
 
+    @cached_property
+    def specific(self):
+        """
+        Return this product variant in its most specific subclassed form.
+        """
+        # the ContentType.objects manager keeps a cache, so this should potentially
+        # avoid a database lookup over doing self.content_type. I think.
+        content_type = ContentType.objects.get_for_id(self.content_type_id)
+        model_class = content_type.model_class()
+        if model_class is None:
+            # Cannot locate a model class for this content type. This might happen
+            # if the codebase and database are out of sync (e.g. the model exists
+            # on a different git branch and we haven't rolled back migrations before
+            # switching branches); if so, the best we can do is return the page
+            # unchanged.
+            return self
+        elif isinstance(self, model_class):
+            # self is already the an instance of the most specific class
+            return self
+        else:
+            return content_type.get_object_for_this_type(id=self.id)
+
     def __init__(self, *args, **kwargs):
         super(ProductVariant, self).__init__(*args, **kwargs)
         if not self.id:
@@ -167,3 +198,6 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
                 # set content type to correctly represent the model class
                 # that this was created as
                 self.content_type = ContentType.objects.get_for_model(self)
+
+    def __str__(self):
+        return self.specific.__str__()
