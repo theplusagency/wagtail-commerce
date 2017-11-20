@@ -33,6 +33,7 @@ install_requires = [
     "Unidecode>=0.04.14",
     "Willow>=0.4,<0.5",
     "requests>=2.11.1,<3.0",
+    "graphene-django>=2.0.1,<3.0",
 ]
 
 # Testing dependencies

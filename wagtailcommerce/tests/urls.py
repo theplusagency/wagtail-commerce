@@ -2,6 +2,8 @@ from __future__ import absolute_import, unicode_literals
 
 from django.conf.urls import include, url
 
+from graphene_django.views import GraphQLView
+
 from wagtail.contrib.wagtailsitemaps import views as sitemaps_views
 from wagtail.contrib.wagtailsitemaps import Sitemap
 from wagtail.wagtailadmin import urls as wagtailadmin_urls
@@ -14,6 +16,8 @@ urlpatterns = [
     url(r'^admin/', include(wagtailadmin_urls)),
     url(r'^search/', include(wagtailsearch_urls)),
     url(r'^images/', include(wagtailimages_urls)),
+
+    url(r'^graphql', GraphQLView.as_view(graphiql=True)),
 
     url(r'^sitemap\.xml$', sitemaps_views.sitemap),
 
