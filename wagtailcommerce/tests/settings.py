@@ -173,7 +173,7 @@ WAGTAILSEARCH_BACKENDS = {
     }
 }
 
-AUTH_USER_MODEL = 'wagtailcommerce_tests_customuser.CustomUser'
+AUTH_USER_MODEL = 'wagtailcommerce_tests_customuser.EmailUser'
 
 if django.VERSION >= (1, 10) and os.environ.get('DATABASE_ENGINE') in (
         # Remove next line when Django 1.8 support is dropped.
@@ -207,7 +207,7 @@ WAGTAIL_SITE_NAME = "Test Site"
 # needs to here because it is used at the module level of wagtailusers.forms
 # when the module gets loaded. The decorator 'override_settings' does not work
 # in this scenario.
-WAGTAIL_USER_CUSTOM_FIELDS = ['country', 'attachment']
+# WAGTAIL_USER_CUSTOM_FIELDS = ['country', 'attachment']
 
 WAGTAILADMIN_RICH_TEXT_EDITORS = {
     'default': {

@@ -1,7 +1,9 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase
+
+from wagtailcommerce.tests.base import WithUsers
 
 
-class TestGetCart(TestCase):
+class TestGetCart(WithUsers, TestCase):
     def setUp(self):
         self.a = 1
 

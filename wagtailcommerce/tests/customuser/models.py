@@ -80,11 +80,11 @@ class EmailUser(AbstractBaseUser):
     # Cant inherit from PermissionsMixin because of clashes with
     # groups/user_permissions related_names.
     email = models.EmailField(max_length=255, unique=True)
-    is_staff = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=True)
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
 
+    is_staff = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     groups = models.ManyToManyField(Group, related_name='+', blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name='+', blank=True)
