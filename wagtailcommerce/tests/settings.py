@@ -42,7 +42,7 @@ if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
 
 SECRET_KEY = 'not needed'
 
-ROOT_URLCONF = 'wagtailcommerce.wtctests.urls'
+ROOT_URLCONF = 'wagtailcommerce.tests.urls'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = STATIC_ROOT
@@ -137,18 +137,18 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.staticfiles',
 
-    # 'wagtailcommerce.wtcanalytics',
-    # 'wagtailcommerce.wtccarts',
-    'wagtailcommerce.wtcaddresses',
-    'wagtailcommerce.wtcdashboard',
-    'wagtailcommerce.wtcorders',
-    'wagtailcommerce.wtcproducts',
-    'wagtailcommerce.wtcpromotions',
-    'wagtailcommerce.wtcshipping',
-    'wagtailcommerce.wtcstores',
+    # 'wagtailcommerce.analytics',
+    'wagtailcommerce.carts',
+    'wagtailcommerce.addresses',
+    'wagtailcommerce.dashboard',
+    'wagtailcommerce.orders',
+    'wagtailcommerce.products',
+    'wagtailcommerce.promotions',
+    'wagtailcommerce.shipping',
+    'wagtailcommerce.stores',
 
-    'wagtailcommerce.wtctests.demoproducts',
-    'wagtailcommerce.wtctests.customuser',
+    'wagtailcommerce.tests.demoproducts',
+    'wagtailcommerce.tests.customuser',
 )
 
 
@@ -173,7 +173,7 @@ WAGTAILSEARCH_BACKENDS = {
     }
 }
 
-AUTH_USER_MODEL = 'customuser.CustomUser'
+AUTH_USER_MODEL = 'wagtailcommerce_tests_customuser.CustomUser'
 
 if django.VERSION >= (1, 10) and os.environ.get('DATABASE_ENGINE') in (
         # Remove next line when Django 1.8 support is dropped.

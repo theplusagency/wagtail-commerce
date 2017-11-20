@@ -1,13 +1,13 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from wagtailcommerce.wtcpromotions.models import Voucher
+from wagtailcommerce.promotions.models import Voucher
 
 
 class Order(models.Model):
-    store = models.ForeignKey('wtcstores.Store', blank=True, null=True)
-    billing_address = models.ForeignKey('wtcaddresses.Address', blank=True, null=True, related_name='orders_by_billing_address')
-    shipping_address = models.ForeignKey('wtcaddresses.Address', blank=True, null=True, related_name='orders_by_shipping_address')
+    store = models.ForeignKey('wagtailcommerce_stores.Store', blank=True, null=True)
+    billing_address = models.ForeignKey('wagtailcommerce_addresses.Address', blank=True, null=True, related_name='orders_by_billing_address')
+    shipping_address = models.ForeignKey('wagtailcommerce_addresses.Address', blank=True, null=True, related_name='orders_by_shipping_address')
 
     # Financial information
     subtotal = models.DecimalField(_('product sub total'), decimal_places=2, max_digits=12)
@@ -20,10 +20,10 @@ class Order(models.Model):
     total_inc_tax = models.DecimalField(_('order total (inc. tax)'), decimal_places=2, max_digits=12)
 
     # TODO: multi-currency support. Now a single store can only have one currency.
-    # currency = models.ForeignKey('wtcstores.Currency', related_name='orders', verbose_name=_('currency'))
+    # currency = models.ForeignKey('stores.Currency', related_name='orders', verbose_name=_('currency'))
 
     # Voucher information 
-    voucher = models.ForeignKey(Voucher, null=True, related_name='+', on_delete=models.SET_NULL, verbose_name=_('voucher'))
+    voucher = models.ForeignKey('wagtailcommerce_promotions.Voucher', null=True, related_name='+', on_delete=models.SET_NULL, verbose_name=_('voucher'))
     voucher_type = models.CharField(_('voucher type'), max_length=20, choices=Voucher.VOUCHER_TYPE_CHOICES, blank=True)
     voucher_mode = models.CharField(_('voucher mode'), max_length=20, choices=Voucher.VOUCHER_MODE_CHOICES, blank=True)
     voucher_amount = models.DecimalField(_('voucher amount'), decimal_places=2, max_digits=12, blank=True, null=True)
@@ -44,7 +44,7 @@ class Order(models.Model):
 class OrderLine(models.Model):
     order = models.ForeignKey(Order, related_name='lines')
     sku = models.CharField(_('SKU'), max_length=128)
-    product_variant = models.ForeignKey('wtcproducts.ProductVariant', related_name='lines',
+    product_variant = models.ForeignKey('wagtailcommerce_products.ProductVariant', related_name='lines',
                                         null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.PositiveIntegerField(_('quantity'), default=1)
     line_price = models.DecimalField(_('line price'), decimal_places=2, max_digits=12)

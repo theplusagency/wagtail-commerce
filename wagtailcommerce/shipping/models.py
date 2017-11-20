@@ -52,7 +52,7 @@ class AbstractShippingMethod(object):
 
 
 class ShippingMethod(ShippingMethodBase, AbstractShippingMethod, models.Model):
-    store = models.ForeignKey('wtcstores.Store', related_name='shipping_methods')
+    store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='shipping_methods')
 
     content_type = models.ForeignKey(
         'contenttypes.ContentType',

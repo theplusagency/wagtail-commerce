@@ -1,7 +1,7 @@
 from wagtail.contrib.modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
 
-from wagtailcommerce.wtcproducts.models import Product, ProductVariant
-from wagtailcommerce.wtcstores.models import Currency, Store
+from wagtailcommerce.products.models import Product, ProductVariant
+from wagtailcommerce.stores.models import Currency, Store
 
 
 class CurrencyAdmin(ModelAdmin):

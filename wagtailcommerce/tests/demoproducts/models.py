@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from modelcluster.fields import ParentalKey
 from wagtail.wagtailcore.models import Orderable
 
-from wagtailcommerce.wtcproducts.models import Product, ProductVariant
+from wagtailcommerce.products.models import Product, ProductVariant
 
 
 class CustomShoe(Product):
@@ -39,7 +39,7 @@ class CustomShoeVariant(ProductVariant):
     size = models.ForeignKey(ShoeSize, related_name='shoe_variants')
     color = models.ForeignKey(ShoeColor, related_name='shoe_variants')
     main_image = models.ForeignKey('wagtailimages.Image', verbose_name=_('image'), null=True, blank=True,
-                              on_delete=models.SET_NULL, related_name='+')
+                                   on_delete=models.SET_NULL, related_name='+')
 
     class Meta:
         verbose_name = _('shoe variant')
@@ -47,7 +47,7 @@ class CustomShoeVariant(ProductVariant):
 
 
 class ShoeVariantImage(Orderable):
-    variant = ParentalKey('demoproducts.CustomShoeVariant', related_name='images')
+    variant = ParentalKey('wagtailcommerce_tests_demoproducts.CustomShoeVariant', related_name='images')
     image = models.ForeignKey('wagtailimages.Image', verbose_name=_('image'), null=True, blank=True,
                               on_delete=models.SET_NULL, related_name='+')
 

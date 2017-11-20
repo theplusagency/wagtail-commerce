@@ -1,1 +1,1 @@
-default_app_config = 'wagtailcommerce.wtcpromotions.apps.PromotionsAppConfig'
+default_app_config = 'wagtailcommerce.promotions.apps.PromotionsAppConfig'

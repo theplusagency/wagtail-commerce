@@ -34,7 +34,7 @@ class Voucher(models.Model):
     valid_from = models.DateTimeField(_('valid from'), blank=True, null=True)
     valid_until = models.DateTimeField(_('valid from'), blank=True, null=True)
 
-    product_variants = models.ManyToManyField('wtcproducts.ProductVariant', related_name='vouchers')
+    product_variants = models.ManyToManyField('wagtailcommerce_products.ProductVariant', related_name='vouchers')
 
     auto_generated = models.BooleanField(_('auto generated'), editable=False)
     created = models.DateTimeField(_('created on'), auto_now_add=True)

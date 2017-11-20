@@ -24,7 +24,6 @@ class Currency(models.Model):
         verbose_name_plural = _("currencies")
 
 
-
 class Store(models.Model):
     name = models.CharField(_("name"), max_length=128)
     site = models.OneToOneField('wagtailcore.Site', blank=True, null=True,
