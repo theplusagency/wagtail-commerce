@@ -8,9 +8,11 @@ from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from treebeard.mp_tree import MP_Node
 from wagtail.wagtailadmin.edit_handlers import FieldPanel
+from wagtail.wagtailcore.models import Orderable
 
-from .query import ProductQuerySet, ProductVariantQuerySet
+from wagtailcommerce.products.query import CategoryQuerySet, ProductQuerySet, ProductVariantQuerySet
 
+CATEGORY_MODEL_CLASSES = []
 PRODUCT_MODEL_CLASSES = []
 PRODUCT_VARIANT_MODEL_CLASSES = []
 
@@ -31,13 +33,41 @@ def get_default_product_variant_content_type():
     return ContentType.objects.get_for_model(ProductVariant)
 
 
-class Category(MP_Node):
+class BaseCategoryManager(models.Manager):
+    def get_queryset(self):
+        return self._queryset_class(self.model).order_by('path')
+
+
+CategoryManager = BaseCategoryManager.from_queryset(CategoryQuerySet)
+
+
+class CategoryBase(models.base.ModelBase):
+    """
+    Metaclass for Category
+    """
+    def __init__(cls, name, bases, dct):
+        super(CategoryBase, cls).__init__(name, bases, dct)
+
+        if not cls._meta.abstract:
+            # register this type in the list of category content types
+            CATEGORY_MODEL_CLASSES.append(cls)
+
+
+class AbstractCategory(MP_Node):
+    """
+    Abstract superclass for Category. 
+    """
+    objects = CategoryManager()
+    
+    class Meta:
+        abstract = True
+
+
+class Category(AbstractCategory, ClusterableModel, metaclass=CategoryBase):
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='categories')
     name = models.CharField(_('name'), max_length=150)
     slug = models.SlugField(_('slug'), max_length=50)
     description = models.TextField(_('description'), blank=True)
-
-    node_order_by = ['name']
 
     def __str__(self):
         return self.name
@@ -74,7 +104,7 @@ class AbstractProduct(models.Model):
         app_label = 'wagtailcommerce_products'
 
 
-class Product(six.with_metaclass(ProductBase, AbstractProduct, ClusterableModel)):
+class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='products')
     name = models.CharField(_('name'), max_length=150)
     slug = models.SlugField(
@@ -119,6 +149,52 @@ class Product(six.with_metaclass(ProductBase, AbstractProduct, ClusterableModel)
                 # that this was created as
                 self.content_type = ContentType.objects.get_for_model(self)
 
+    @cached_property
+    def specific(self):
+        """
+        Return this product variant in its most specific subclassed form.
+        """
+        # the ContentType.objects manager keeps a cache, so this should potentially
+        # avoid a database lookup over doing self.content_type. I think.
+        content_type = ContentType.objects.get_for_id(self.content_type_id)
+        model_class = content_type.model_class()
+        if model_class is None:
+            # Cannot locate a model class for this content type. This might happen
+            # if the codebase and database are out of sync (e.g. the model exists
+            # on a different git branch and we haven't rolled back migrations before
+            # switching branches); if so, the best we can do is return the page
+            # unchanged.
+            return self
+        elif isinstance(self, model_class):
+            # self is already the an instance of the most specific class
+            return self
+        else:
+            return content_type.get_object_for_this_type(id=self.id)
+
+
+class ImageSet(ClusterableModel):
+    product = ParentalKey(Product, related_name='image_sets')
+    name = models.CharField(_('name'), max_length=100)
+
+    class Meta:
+        verbose_name = _('image set')
+        verbose_name_plural = _('image sets')
+
+
+class Image(Orderable):
+    image_set = ParentalKey(ImageSet, related_name='images')
+    image = models.ForeignKey(
+        'wagtailimages.Image',
+        verbose_name=_('image'),
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+
+    class Meta:
+        verbose_name = _('image')
+        verbose_name_plural = _('images')
+
 
 class BaseProductVariantManager(models.Manager):
     def get_queryset(self):
@@ -152,6 +228,7 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
     sku = models.CharField(_('SKU'), max_length=32, unique=True)
     name = models.CharField(_('name'), max_length=100, blank=True)
     price = models.DecimalField(_('price'), max_digits=12, decimal_places=2)
+    active = models.BooleanField(_('active'), default=True)
 
     content_type = models.ForeignKey(
         'contenttypes.ContentType',
