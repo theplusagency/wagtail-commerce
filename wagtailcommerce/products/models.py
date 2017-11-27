@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import six
@@ -7,8 +8,9 @@ from django.utils.translation import ugettext_lazy as _
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from treebeard.mp_tree import MP_Node
-from wagtail.wagtailadmin.edit_handlers import FieldPanel
+from wagtail.wagtailadmin.edit_handlers import FieldPanel, InlinePanel
 from wagtail.wagtailcore.models import Orderable
+from wagtail.wagtailimages.edit_handlers import ImageChooserPanel
 
 from wagtailcommerce.products.query import CategoryQuerySet, ProductQuerySet, ProductVariantQuerySet
 
@@ -114,6 +116,8 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
         help_text=_('The name of the product as it will appear in URLs e.g http://domain.com/store/[product-slug]/'))
 
     categories = models.ManyToManyField(Category, blank=True, related_name='products')
+    single_price = models.BooleanField(_('single price'), default=True, help_text=_('same price for all variants'))
+    price = models.DecimalField(_('price'), max_digits=12, decimal_places=2, blank=True, null=True)
 
     active = models.BooleanField(_('active'))
     available_on = models.DateTimeField(_('available on'), blank=True, null=True)
@@ -134,6 +138,8 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
         FieldPanel('active'),
         FieldPanel('available_on'),
         FieldPanel('categories'),
+        FieldPanel('single_price'),
+        FieldPanel('price'),
     ]
 
     def __str__(self):
@@ -174,11 +180,21 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
 
 class ImageSet(ClusterableModel):
     product = ParentalKey(Product, related_name='image_sets')
-    name = models.CharField(_('name'), max_length=100)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    filtering_relation = GenericForeignKey('content_type', 'object_id')
+
+    panels = [
+        InlinePanel('images', label=_('images'))
+    ]
+
+    def __str__(self):
+        return "{}".format(self.filtering_relation)
 
     class Meta:
         verbose_name = _('image set')
         verbose_name_plural = _('image sets')
+        unique_together = ('content_type', 'object_id', )
 
 
 class Image(Orderable):
@@ -190,6 +206,10 @@ class Image(Orderable):
         on_delete=models.SET_NULL,
         related_name='+'
     )
+
+    panels = [
+        ImageChooserPanel('image')
+    ]
 
     class Meta:
         verbose_name = _('image')
@@ -227,7 +247,7 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
     product = ParentalKey(Product, related_name='variants')
     sku = models.CharField(_('SKU'), max_length=32, unique=True)
     name = models.CharField(_('name'), max_length=100, blank=True)
-    price = models.DecimalField(_('price'), max_digits=12, decimal_places=2)
+    price = models.DecimalField(_('price'), max_digits=12, decimal_places=2, blank=True, null=True)
     active = models.BooleanField(_('active'), default=True)
 
     content_type = models.ForeignKey(
