@@ -220,7 +220,8 @@ class BaseProductVariantManager(models.Manager):
     def get_queryset(self):
         return ProductVariantQuerySet(self.model)
 
-ProductVariantManager = BaseProductVariantManager.from_queryset(ProductQuerySet)
+
+ProductVariantManager = BaseProductVariantManager.from_queryset(ProductVariantQuerySet)
 
 
 class AbstractProductVariant(models.Model):
@@ -250,6 +251,8 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
     price = models.DecimalField(_('price'), max_digits=12, decimal_places=2, blank=True, null=True)
     active = models.BooleanField(_('active'), default=True)
 
+    stock = models.IntegerField(_('stock'), default=0)
+
     content_type = models.ForeignKey(
         'contenttypes.ContentType',
         verbose_name=_('content type'),
@@ -261,7 +264,8 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
         FieldPanel('product'),
         FieldPanel('sku'),
         FieldPanel('name'),
-        FieldPanel('price')
+        FieldPanel('price'),
+        FieldPanel('stock')
     ]
 
     @cached_property
