@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.dispatch import receiver
 from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -13,6 +15,7 @@ from wagtail.wagtailcore.models import Orderable
 from wagtail.wagtailimages.edit_handlers import ImageChooserPanel
 
 from wagtailcommerce.products.query import CategoryQuerySet, ProductQuerySet, ProductVariantQuerySet
+from wagtailcommerce.utils.images import get_image_model
 
 CATEGORY_MODEL_CLASSES = []
 PRODUCT_MODEL_CLASSES = []
@@ -57,10 +60,10 @@ class CategoryBase(models.base.ModelBase):
 
 class AbstractCategory(MP_Node):
     """
-    Abstract superclass for Category. 
+    Abstract superclass for Category.
     """
     objects = CategoryManager()
-    
+
     class Meta:
         abstract = True
 
@@ -82,6 +85,7 @@ class Category(AbstractCategory, ClusterableModel, metaclass=CategoryBase):
 class BaseProductManager(models.Manager):
     def get_queryset(self):
         return ProductQuerySet(self.model)
+
 
 ProductManager = BaseProductManager.from_queryset(ProductQuerySet)
 
@@ -204,7 +208,7 @@ class Image(Orderable):
         verbose_name=_('image'),
         null=True, blank=True,
         on_delete=models.SET_NULL,
-        related_name='+'
+        related_name='wagtailcommerce_images'
     )
 
     panels = [
@@ -268,6 +272,8 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
         FieldPanel('stock')
     ]
 
+    image_reditions = {}
+
     @cached_property
     def specific(self):
         """
@@ -302,3 +308,20 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
 
     def __str__(self):
         return self.specific.__str__()
+
+
+if getattr(settings, 'WAGTAILCOMMERCE_ASYNC_THUMBNAILS', False):
+    from wagtailcommerce.products.images import generate_renditions
+
+    @receiver(models.signals.post_save, sender=Image)
+    def image_post_save(sender, instance, created, **kwargs):
+        # Generate renditions when Image Set image is saved.
+        generate_renditions.delay(instance)
+
+    WagtailImageModel = get_image_model(require_ready=False)
+
+    @receiver(models.signals.post_save, sender=WagtailImageModel)
+    def wagtail_image_post_save(sender, instance, created, **kwargs):
+        # Generate renditions for product images when Wagtail image is saved
+        for wagtailcommerce_image in instance.wagtailcommerce_images.all():
+            generate_renditions.delay(wagtailcommerce_image)

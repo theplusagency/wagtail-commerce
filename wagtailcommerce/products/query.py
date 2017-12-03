@@ -10,7 +10,14 @@ class CategoryQuerySet(QuerySet):
 
 
 class ProductQuerySet(QuerySet):
-    pass
+    def specific(self):
+        """
+        This efficiently gets all the specific objects for the queryset, using
+        the minimum number of queries.
+        """
+        clone = self._clone()
+        clone._iterable_class = SpecificIterable
+        return clone
 
 
 class ProductVariantQuerySet(QuerySet):
