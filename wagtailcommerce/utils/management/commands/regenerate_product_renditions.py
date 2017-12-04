@@ -1,7 +1,6 @@
 from django.conf import settings
 
 
-
 if getattr(settings, 'WAGTAILCOMMERCE_ASYNC_THUMBNAILS', False):
     from django.core.management.base import BaseCommand
 
