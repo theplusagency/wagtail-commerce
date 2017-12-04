@@ -1,6 +1,7 @@
-from wagtail.wagtailimages import get_image_model_string
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
+
+from wagtail.wagtailimages import get_image_model_string
 
 
 def get_image_model(require_ready=True):

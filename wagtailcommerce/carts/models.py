@@ -73,7 +73,7 @@ class Cart(models.Model):
                                  on_delete=models.CASCADE, verbose_name=_('user'))
     status = models.CharField(_('status'), max_length=128, default=OPEN, choices=STATUS_CHOICES)
 
-    token = models.UUIDField(_('token'), primary_key=True, default=uuid4, editable=False)
+    token = models.UUIDField(_('token'), db_index=True, default=uuid4, editable=False)
 
     updated = models.DateTimeField(_('updated on'), auto_now=True)
     created = models.DateTimeField(_('created on'), auto_now_add=True)
@@ -95,6 +95,7 @@ class Cart(models.Model):
 
 
 class CartLine(models.Model):
+    cart = models.ForeignKey(Cart, related_name='lines')
     variant = models.ForeignKey('wagtailcommerce_products.ProductVariant', verbose_name=_('product'), related_name='+')
     quantity = models.PositiveIntegerField(_('quantity'))
 
