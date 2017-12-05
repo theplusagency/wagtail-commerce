@@ -181,6 +181,10 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
         else:
             return content_type.get_object_for_this_type(id=self.id)
 
+    @cached_property
+    def url(self):
+        raise NotImplementedError(_('Your child Product model must implement the url() method'))
+
 
 class ImageSet(ClusterableModel):
     product = ParentalKey(Product, related_name='image_sets')
