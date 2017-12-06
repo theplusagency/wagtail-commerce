@@ -3,7 +3,7 @@ from wagtailcommerce.carts.utils import get_cart_from_request
 
 def wagtailcommerce_props(request):
     return {
-        'props': {
+        'wagtailcommerce_context': {
             'cart': {
                 'lines': [
                     {
