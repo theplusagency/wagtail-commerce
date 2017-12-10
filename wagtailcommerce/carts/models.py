@@ -70,7 +70,7 @@ class Cart(models.Model):
 
     store = models.ForeignKey('wagtailcommerce_stores.store', related_name='carts')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name='carts',
-                                 on_delete=models.CASCADE, verbose_name=_('user'))
+                             on_delete=models.CASCADE, verbose_name=_('user'))
     status = models.CharField(_('status'), max_length=128, default=OPEN, choices=STATUS_CHOICES)
 
     token = models.UUIDField(_('token'), db_index=True, default=uuid4, editable=False)

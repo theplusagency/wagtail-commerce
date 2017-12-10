@@ -276,8 +276,6 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
         FieldPanel('stock')
     ]
 
-    image_reditions = {}
-
     @cached_property
     def specific(self):
         """
