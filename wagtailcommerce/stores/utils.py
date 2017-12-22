@@ -1,4 +1,4 @@
-from .models import Store
+from wagtailcommerce.stores.models import Store
 
 
 def get_store(request):

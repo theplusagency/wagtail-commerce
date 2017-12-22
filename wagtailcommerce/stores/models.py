@@ -28,6 +28,9 @@ class Store(models.Model):
     name = models.CharField(_("name"), max_length=128)
     site = models.OneToOneField('wagtailcore.Site', blank=True, null=True,
                                 on_delete=models.SET_NULL, related_name="store")
+    # Options
+    checkout_enabled = models.BooleanField(_('checkout enabled'), default=True)
+
     # TODO: allow multiple/dynamic tax rates
     tax_rate = models.DecimalField(_("tax rate (percentage)"), decimal_places=2, max_digits=5,
                                    validators=[MinValueValidator(0), MaxValueValidator(100)])
@@ -38,6 +41,7 @@ class Store(models.Model):
     panels = [
         FieldPanel('name'),
         FieldPanel('site'),
+        FieldPanel('checkout_enabled'),
         FieldPanel('currency'),
         FieldPanel('tax_rate'),
     ]
