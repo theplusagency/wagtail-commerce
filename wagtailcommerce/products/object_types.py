@@ -7,6 +7,7 @@ from wagtailcommerce.products.models import Product, ProductVariant
 class CategoryType(graphene.ObjectType):
     id = graphene.String()
     name = graphene.String()
+    slug = graphene.String()
     children = graphene.List('wagtailcommerce.products.object_types.CategoryType')
 
 

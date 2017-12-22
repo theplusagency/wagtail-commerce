@@ -9,6 +9,7 @@ def process_category(category):
         cat = {
             'id': category['id'],
             'name': category['data']['name'],
+            'slug': category['data']['slug'],
             'children': []
         }
 
