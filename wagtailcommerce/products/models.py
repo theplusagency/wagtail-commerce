@@ -240,7 +240,7 @@ class Image(Orderable):
         ImageChooserPanel('image')
     ]
 
-    class Meta:
+    class Meta(Orderable.Meta):
         verbose_name = _('image')
         verbose_name_plural = _('images')
 
