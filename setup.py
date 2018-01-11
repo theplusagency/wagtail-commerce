@@ -21,19 +21,20 @@ except ImportError:
 
 
 install_requires = [
-    "Django>=1.10,<1.12",
-    "django-countries>=4.6,<5.0",
-    "django-modelcluster>=3.1,<4.0",
-    "django-taggit>=0.20,<1.0",
-    "django-treebeard>=3.0,<5.0",
-    "djangorestframework>=3.1.3",
-    "Pillow>=2.6.1",
-    "beautifulsoup4>=4.5.1",
-    "html5lib>=0.999,<1",
-    "Unidecode>=0.04.14",
-    "Willow>=0.4,<0.5",
-    "requests>=2.11.1,<3.0",
-    "graphene-django>=2.0.1,<3.0",
+    'Django>=1.10,<1.12',
+    'django-countries>=4.6,<5.0',
+    'django-modelcluster>=3.1,<4.0',
+    'django-taggit>=0.20,<1.0',
+    'django-treebeard>=3.0,<5.0',
+    'djangorestframework>=3.1.3',
+    'Pillow>=2.6.1',
+    'shortuuid>=0.5,<0.6',
+    'beautifulsoup4>=4.5.1',
+    'html5lib>=0.999,<1',
+    'Unidecode>=0.04.14',
+    'Willow>=0.4,<0.5',
+    'requests>=2.11.1,<3.0',
+    'graphene-django>=2.0.1,<3.0',
 ]
 
 # Testing dependencies

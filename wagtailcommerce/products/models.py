@@ -1,3 +1,5 @@
+import shortuuid
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -123,6 +125,8 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
     single_price = models.BooleanField(_('single price'), default=True, help_text=_('same price for all variants'))
     price = models.DecimalField(_('price'), max_digits=12, decimal_places=2, blank=True, null=True)
 
+    identifier = models.CharField(_('identifier'), max_length=8, db_index=True, unique=True)
+
     active = models.BooleanField(_('active'))
     available_on = models.DateTimeField(_('available on'), blank=True, null=True)
 
@@ -134,6 +138,7 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
     )
 
     created = models.DateTimeField(_('created on'), auto_now_add=True)
+    modified = models.DateTimeField(_('modified on'), auto_now=True)
 
     panels = [
         FieldPanel('store'),
@@ -158,6 +163,22 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
                 # set content type to correctly represent the model class
                 # that this was created as
                 self.content_type = ContentType.objects.get_for_model(self)
+
+    def save(self, *args, **kwargs):
+        if not self.identifier:
+            self.identifier = self.generate_identifier()
+
+        super().save(*args, **kwargs)
+
+    def generate_identifier(self):
+        shortuuid.set_alphabet('abcdefghijklmnopqrstuvwxyz1234567890')
+
+        while True:
+            uuid = shortuuid.uuid()[:8]
+            if Product.objects.filter(identifier=uuid).exists():
+                break
+
+        return uuid
 
     @cached_property
     def specific(self):
