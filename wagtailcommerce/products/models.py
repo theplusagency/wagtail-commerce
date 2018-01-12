@@ -175,7 +175,7 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
 
         while True:
             uuid = shortuuid.uuid()[:8]
-            if Product.objects.filter(identifier=uuid).exists():
+            if not Product.objects.filter(identifier=uuid).exists():
                 break
 
         return uuid
