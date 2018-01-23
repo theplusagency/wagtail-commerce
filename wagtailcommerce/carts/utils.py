@@ -31,7 +31,6 @@ def get_cart_from_request(request):
     else:
         token = request.get_signed_cookie(COOKIE_NAME, default=None)
         cart = get_anonymous_cart_from_token(request.store, token)
-        print(cart.pk)
         user = None
 
     if cart is not None:
