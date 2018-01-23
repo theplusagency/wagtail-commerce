@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -5,7 +6,8 @@ from wagtailcommerce.promotions.models import Voucher
 
 
 class Order(models.Model):
-    store = models.ForeignKey('wagtailcommerce_stores.Store', blank=True, null=True)
+    store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='orders', verbose_name=_('store'))
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='orders', verbose_name=_('user'))
     billing_address = models.ForeignKey('wagtailcommerce_addresses.Address', blank=True, null=True, related_name='orders_by_billing_address')
     shipping_address = models.ForeignKey('wagtailcommerce_addresses.Address', blank=True, null=True, related_name='orders_by_shipping_address')
 
@@ -29,7 +31,7 @@ class Order(models.Model):
     voucher_amount = models.DecimalField(_('voucher amount'), decimal_places=2, max_digits=12, blank=True, null=True)
     voucher_code = models.CharField(_('voucher code'), max_length=40, blank=True)
 
-    date_placed = models.DateTimeField(db_index=True)
+    date_placed = models.DateTimeField(db_index=True, auto_now_add=True)
 
     def calculate_totals(self):
         pass

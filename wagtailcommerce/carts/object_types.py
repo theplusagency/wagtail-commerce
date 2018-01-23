@@ -9,6 +9,10 @@ from wagtailcommerce.products.object_types import ProductVariantType
 
 
 class CartType(DjangoObjectType):
+    total = graphene.Field(graphene.Float)
+
+    def resolve_total(self, info, **kwargs):
+        return self.get_total()
 
     class Meta:
         model = Cart

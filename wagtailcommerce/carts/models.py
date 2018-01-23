@@ -85,8 +85,8 @@ class Cart(models.Model):
 
     def get_total(self):
         total = Decimal('0')
-        for l in self.cart_lines.all:
-            total += l.product.price + Decimal(l.quantity)
+        for l in self.lines.all():
+            total += l.variant.product.price + Decimal(l.quantity)
         return total
 
     class Meta:

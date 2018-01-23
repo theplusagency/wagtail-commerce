@@ -10,13 +10,14 @@ def process_category(category):
             'id': category['id'],
             'name': category['data']['name'],
             'slug': category['data']['slug'],
-            'children': []
         }
 
-        if 'children' in category.keys():
-            cat['children'] = [process_category(c) for c in category['children']]
+        cat = Category(**cat)
 
-        return CategoryType(**cat)
+        if 'children' in category.keys():
+            cat.children = [process_category(c) for c in category['children']]
+
+        return cat
 
 
 class CategoriesQuery(graphene.ObjectType):

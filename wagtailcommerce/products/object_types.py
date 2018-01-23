@@ -1,14 +1,14 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 
-from wagtailcommerce.products.models import Product, ProductVariant
+from wagtailcommerce.products.models import Category, Product, ProductVariant
 
 
-class CategoryType(graphene.ObjectType):
-    id = graphene.String()
-    name = graphene.String()
-    slug = graphene.String()
+class CategoryType(DjangoObjectType):
     children = graphene.List('wagtailcommerce.products.object_types.CategoryType')
+
+    class Meta:
+        model = Category
 
 
 class ProductType(DjangoObjectType):

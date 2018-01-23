@@ -2,40 +2,40 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_countries.fields import CountryField
 
+from django.contrib.auth import get_user_model
+
 
 class Address(models.Model):
-    first_name = models.CharField(_('first name'), max_length=255, blank=True)
-    last_name = models.CharField(_('last_name'), max_length=255, blank=True)
-    company_name = models.CharField(_('company'), max_length=255, blank=True)
-    street_address_1 = models.CharField(_('address (line 1)'), max_length=255, blank=True)
-    street_address_2 = models.CharField(_('address (line 2)'), max_length=255, blank=True)
-    city = models.CharField(_('city / town'), max_length=255, blank=True)
-    city_area = models.CharField(_('district / neighborhood'), max_length=255, blank=True)
-    country_area = models.CharField(_('state / province'), max_length=255, blank=True)
-    country = CountryField(_('country'))
-    postal_code = models.CharField(_('postal code'), max_length=64, blank=True)
-    phone = models.CharField(_('phone number'), max_length=30, blank=True)
+    user = models.ForeignKey(get_user_model(), related_name='addresses', blank=True, null=True)
+    deleted = models.BooleanField(_('Deleted'), default=False)
+    created = models.DateTimeField(_('Created'), auto_now_add=True)
+    modified = models.DateTimeField(_('Modified'), auto_now=True)
+    default_shipping_address = models.BooleanField(_('Default shipping address'), default=False)
+    default_billing_address = models.BooleanField(_('Default billing address'), default=False)
+
+    name = models.CharField(_('Name'), max_length=255, blank=True)
+    last_name = models.CharField(_('Last name'), max_length=255, blank=True)
+    street_address_1 = models.CharField(_('Address (line 1)'), max_length=255, blank=True)
+    street_address_2 = models.CharField(_('Address (line 2)'), max_length=255, blank=True)
+    street_number = models.CharField(_('Street number'), max_length=255, blank=True)
+    floor = models.CharField(_('Floor'), max_length=255, blank=True)
+    apartment_number = models.CharField(_('Apartment number'), max_length=255, blank=True)
+    city = models.CharField(_('City / Town'), max_length=255, blank=True)
+    district = models.CharField(_('District / Neighborhood'), max_length=255, blank=True)
+    country_area = models.CharField(_('State / Province / Region'), max_length=255, blank=True)
+    country = CountryField(_('Country'), blank=True)
+    postal_code = models.CharField(_('Postal code'), max_length=64, blank=True)
+    phone = models.CharField(_('Phone number'), max_length=30, blank=True)
+    security_access_code = models.CharField(_('Security access code'), max_length=150, blank=True)
+
+    def __str__(self):
+        return self.full_name
 
     @property
     def full_name(self):
-        return '%s %s' % (self.first_name, self.last_name)
-
-    def __str__(self):
-        if self.company_name:
-            return '%s - %s' % (self.company_name, self.full_name)
-        return self.full_name
-
-    def __repr__(self):
-        return (
-            'Address (first_name={r}, last_name={r}, company_name={r}, '
-            'street_address_1={r}, street_address_2={r}, city={r}, '
-            'city_area={r}, country_area={r}, country={r}, '
-            'postal_code={r}, phone={r})'.format(
-                self.first_name, self.last_name, self.company_name,
-                self.street_address_1, self.street_address_2, self.city,
-                self.city_area, self.country_area, self.country,
-                self.postal_code, self.phone))
+        return '{} {}'.format(self.name, self.last_name)
 
     class Meta:
-        verbose_name = _('address')
-        verbose_name_plural = _('addresses')
+        verbose_name = _('Address')
+        verbose_name_plural = _('Addresses')
+        ordering = ('-created', )
