@@ -1,4 +1,3 @@
-from django.conf import settings
 import graphene
 from graphene_django.types import DjangoObjectType
 

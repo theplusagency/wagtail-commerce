@@ -14,6 +14,7 @@ class PlaceOrder(graphene.Mutation):
         shipping_address_pk = graphene.String()
         billing_address_pk = graphene.String()
 
+    payment_redirect_url = graphene.String()
     success = graphene.Boolean()
     order = graphene.Field(lambda: OrderObjectType)
     errors = graphene.List(graphene.String)
@@ -32,7 +33,6 @@ class PlaceOrder(graphene.Mutation):
         order = create_order(info.context, shipping_address, billing_address)
 
         mp = mercadopago.MP(settings.MERCADOPAGO_CLIENT_ID, settings.MERCADOPAGO_CLIENT_SECRET)
-        mp.sandbox_mode(True)
 
         accessToken = mp.get_access_token()
 
@@ -60,15 +60,12 @@ class PlaceOrder(graphene.Mutation):
                 'pending': '{}{}?p=1'.format(root_url, reverse('purchase_summary')),
                 'failure': '{}{}?e=1'.format(root_url, reverse('checkout')),
             },
-            # 'notification_url': '{}{}'.format(root_url, reverse('mercadopago_basic_ipn'))
+            'auto_return': 'approved',
+            'external_reference': order.identifier,
         }
-
-        print(preference)
 
         preferenceResult = mp.create_preference(preference)
 
-        print(preferenceResult)
-        url = preferenceResult["response"]["sandbox_init_point"]
-        print(url)
+        payment_redirect_url = preferenceResult["response"]["init_point"]
 
-        return PlaceOrder(success=True, order=order)
+        return PlaceOrder(success=True, order=order, payment_redirect_url=payment_redirect_url)

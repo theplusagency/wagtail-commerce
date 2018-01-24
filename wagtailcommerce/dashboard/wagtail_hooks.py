@@ -1,6 +1,6 @@
 from wagtail.contrib.modeladmin.options import ModelAdmin, ModelAdminGroup, modeladmin_register
 
-from wagtailcommerce.products.models import Product, ProductVariant
+from wagtailcommerce.products.models import Product
 from wagtailcommerce.stores.models import Currency, Store
 
 
@@ -30,5 +30,6 @@ class WagtailCommerceGroup(ModelAdminGroup):
     menu_icon = 'fa-shopping-cart'
     menu_order = 500
     items = [CurrencyAdmin, ProductAdmin, StoreAdmin]
+
 
 modeladmin_register(WagtailCommerceGroup)

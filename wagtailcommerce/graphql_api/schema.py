@@ -14,5 +14,5 @@ class WagtailCommerceMutations(graphene.ObjectType):
     place_order = PlaceOrder.Field()
 
 
-class WagtailCommerceQueries(CartQuery, CategoriesQuery, UserQuery, graphene.ObjectType):
+class WagtailCommerceQueries(CategoriesQuery, CartQuery, UserQuery, graphene.ObjectType):
     pass
