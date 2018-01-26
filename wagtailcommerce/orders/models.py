@@ -11,6 +11,8 @@ from wagtailcommerce.promotions.models import Voucher
 class Order(models.Model):
     ORDER_STATUS_OPTIONS = (
         ('payment_pending', _('Payment pending')),
+        ('awaiting_payment_confirmation', _('Awaiting payment confirmation')),
+        ('awaiting_payment_authorization', _('Awaiting payment authorization')),
         ('paid', _('Paid')),
         ('cancelled', _('Cancelled')),
     )
