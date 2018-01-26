@@ -55,7 +55,7 @@ class Order(models.Model):
         try:
             previous_state = Order.objects.get(pk=self.pk)
 
-            if previous_state.status == 'payment_pending' and self.status == 'paid':
+            if previous_state.status != 'paid' and self.status == 'paid':
                 # Order has been paid, reduce product stock and trigger event
                 order_paid.send(Order, order=self)
         except Order.DoesNotExist:

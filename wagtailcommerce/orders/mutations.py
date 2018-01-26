@@ -8,6 +8,8 @@ from wagtailcommerce.addresses.models import Address
 from wagtailcommerce.orders.object_types import OrderObjectType
 from wagtailcommerce.orders.utils import create_order
 
+from mercadopago_payments.models import MercadoPagoBasicPayment, MercadoPagoBasicIPN
+
 
 class PlaceOrder(graphene.Mutation):
     class Arguments:
@@ -64,8 +66,15 @@ class PlaceOrder(graphene.Mutation):
             'external_reference': order.identifier,
         }
 
-        preferenceResult = mp.create_preference(preference)
+        preference_result = mp.create_preference(preference)
 
-        payment_redirect_url = preferenceResult["response"]["init_point"]
+        MercadoPagoBasicPayment.objects.create(
+            order=order,
+            preference_sent_data=preference,
+            preference_response_data=preference_result,
+            preference_id=preference_result['response']['id']
+        )
+
+        payment_redirect_url = preference_result['response']['init_point']
 
         return PlaceOrder(success=True, order=order, payment_redirect_url=payment_redirect_url)

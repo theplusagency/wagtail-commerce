@@ -21,6 +21,7 @@ class CartType(DjangoObjectType):
 class CartLineType(DjangoObjectType):
     main_image = graphene.Field(WagtailImageType)
     variant = graphene.Field(ProductVariantType)
+    total = graphene.Float()
 
     def resolve_main_image(self, info, **kwargs):
         """
@@ -41,6 +42,9 @@ class CartLineType(DjangoObjectType):
             )
 
         return image_sets[0].images.first().image
+
+    def resolve_total(self, info, **kwargs):
+        return float(self.get_total())
 
     class Meta:
         model = CartLine

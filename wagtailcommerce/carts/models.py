@@ -44,18 +44,6 @@ class CartQueryset(models.QuerySet):
         """
         return self.filter(status=Cart.CANCELED)
 
-    # def for_display(self):
-    #     """Annotate the queryset for display purposes.
-    #     Prefetches additional data from the database to avoid the n+1 queries
-    #     problem.
-    #     """
-    #     return self.prefetch_related(
-    #         'lines__variant__product__categories',
-    #         'lines__variant__product__images',
-    #         'lines__variant__product__product_class__product_attributes__values',  # noqa
-    #         'lines__variant__product__product_class__variant_attributes__values',  # noqa
-    #         'lines__variant__stock')
-
 
 class Cart(models.Model):
     OPEN = 'open'
@@ -100,6 +88,9 @@ class CartLine(models.Model):
     quantity = models.PositiveIntegerField(_('quantity'))
 
     created = models.DateTimeField(_('created on'), auto_now_add=True)
+
+    def get_total(self):
+        return self.variant.product.price * self.quantity
 
     class Meta:
         verbose_name = _('cart line')

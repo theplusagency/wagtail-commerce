@@ -1,3 +1,5 @@
+from wagtailcommerce.carts.exceptions import CartException
+
 COOKIE_NAME = 'cart'
 
 
@@ -58,3 +60,30 @@ def add_to_cart(request, variant):
         cart_line = CartLine.objects.create(cart=cart, variant=variant, quantity=1)
 
     return cart_line
+
+
+def modify_cart_line(request, variant, quantity):
+    """
+    Find a cart line matching the variant and modify its quantity
+    """
+    from wagtailcommerce.carts.models import CartLine
+
+    cart = get_cart_from_request(request)
+
+    if not getattr(cart, 'pk', None) or quantity < 0:
+        # Generic error to be displayed on UI
+        # Should't happen on any normal scenario
+        raise CartException()
+
+    try:
+        cart_line = cart.lines.get(variant=variant)
+
+        if quantity == 0:
+            cart_line.delete()
+            return None
+
+        cart_line.quantity = quantity
+        cart_line.save()
+        return cart_line
+    except CartLine.DoesNotExist:
+        raise CartException()
