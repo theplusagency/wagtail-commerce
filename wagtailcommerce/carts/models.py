@@ -2,6 +2,8 @@ from decimal import Decimal
 from uuid import uuid4
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+
 
 from django.db import models
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
@@ -91,6 +93,26 @@ class CartLine(models.Model):
 
     def get_total(self):
         return self.variant.product.price * self.quantity
+
+    def get_image(self):
+        """
+        Filter image sets and obtain cart line's variant's related image set.
+
+        Returns the first image of the set.
+        """
+        filtering_fields = self.variant.product.specific.image_set_filtering_fields
+
+        image_sets = self.variant.product.image_sets.all()
+
+        for field in filtering_fields:
+            # Filter image sets by generic foreign key, value comes from field on variant
+            filtering_object = getattr(self.variant.specific, field)
+            image_sets = image_sets.filter(
+                content_type=ContentType.objects.get_for_model(filtering_object),
+                object_id=filtering_object.pk
+            )
+
+        return image_sets[0].images.first().image
 
     class Meta:
         verbose_name = _('cart line')
