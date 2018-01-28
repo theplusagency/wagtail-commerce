@@ -2,6 +2,7 @@ import shortuuid
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _
 
 from wagtailcommerce.orders.signals import order_paid
@@ -75,6 +76,13 @@ class Order(models.Model):
 
         return uuid
 
+    def product_count(self):
+        o = Order.objects.filter(pk=self.pk).annotate(
+            product_count=Sum('lines__quantity')
+        )
+
+        return o[0].product_count
+
     class Meta:
         verbose_name = _('order')
         verbose_name_plural = _('orders')
@@ -83,6 +91,7 @@ class Order(models.Model):
 class OrderLine(models.Model):
     order = models.ForeignKey(Order, related_name='lines')
     sku = models.CharField(_('SKU'), max_length=128)
+    product_thumbnail = models.ImageField(_('product thumbnail'), blank=True, null=True)
     product_variant = models.ForeignKey('wagtailcommerce_products.ProductVariant', related_name='lines',
                                         null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.PositiveIntegerField(_('quantity'), default=1)

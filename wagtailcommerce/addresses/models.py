@@ -35,6 +35,15 @@ class Address(models.Model):
     def full_name(self):
         return '{} {}'.format(self.name, self.last_name)
 
+    @property
+    def full_street(self):
+        street = '{} {}'.format(self.street_address_1, self.street_number)
+
+        if self.floor:
+            street = '{} {} {}'.format(street, self.floor, self.apartment_number)
+
+        return street
+
     class Meta:
         verbose_name = _('Address')
         verbose_name_plural = _('Addresses')

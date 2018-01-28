@@ -12,7 +12,7 @@ class EditAddress(graphene.Mutation):
         address = AddressInput(required=True)
 
     success = graphene.Boolean()
-    # user = graphene.Field(lambda u: UserObjectType)
+    user = graphene.Field(lambda: UserObjectType)
     errors = graphene.List(graphene.String)
 
     def mutate(self, info, address=None, *args):

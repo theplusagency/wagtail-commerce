@@ -1,5 +1,7 @@
+import os
 from decimal import Decimal
 
+from django.core.files.base import ContentFile
 from wagtailcommerce.carts.utils import get_cart_from_request
 from wagtailcommerce.orders.models import Order, OrderLine
 
@@ -38,7 +40,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
     order_lines = []
 
     for line in cart.lines.select_related('variant', 'variant__product').all():
-        order_lines.append(OrderLine(
+        order_line = OrderLine(
             order=order,
             sku=line.variant.sku,
             product_variant=line.variant,
@@ -46,7 +48,20 @@ def create_order(request, shipping_address, billing_address, cart=None):
             line_price=line.variant.product.price,
             product_name=line.variant.product.name,
             product_variant_description=line.variant.__str__(),
-        ))
+        )
+
+        image = line.get_image()
+
+        if image:
+            source_file = image.get_rendition('max-400x400|format-jpeg|bgcolor-ffffff').image
+            file_content = ContentFile(source_file.file.read())
+            file_name = os.path.split(source_file.file.name)[-1]
+
+            order_line.product_thumbnail.save(file_name, file_content, save=False)
+
+            source_file.file.close()
+
+        order_lines.append(order_line)
 
     OrderLine.objects.bulk_create(order_lines)
 
