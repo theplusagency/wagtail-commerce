@@ -1,6 +1,5 @@
-from datetime import timedelta
-
 from wagtailcommerce.carts.exceptions import CartException
+from wagtailcommerce.carts.models import Cart, CartLine
 
 SESSION_KEY_NAME = 'cart_token'
 
@@ -49,6 +48,66 @@ def get_cart_from_request(request):
         return cart
 
     return Cart(user=user, store=request.store)
+
+
+def merge_carts(user, request):
+    try:
+        db_cart = Cart.objects.from_store(request.store).for_user(user).open().latest('created')
+    except Cart.DoesNotExist:
+        db_cart = None
+
+    session_cart = None
+    token = request.session.get(SESSION_KEY_NAME, None)
+
+    if token:
+        session_cart = get_anonymous_cart_from_token(token=token, store=request.store)
+
+    final_cart = None
+
+    if db_cart:
+        final_cart = db_cart
+
+    if session_cart and db_cart:
+        # Copy session cart lines to db cart
+
+        session_cart.status = Cart.REPLACED
+        session_cart.save()
+
+        for line in session_cart.lines.all():
+            if line.has_stock():
+                # Only copy if in stock
+                try:
+                    existing_cart_variant = db_cart.lines.get(variant=line.variant)
+                except CartLine.DoesNotExist:
+                    existing_cart_variant = None
+
+                if existing_cart_variant and line.quantity > existing_cart_variant.quantity:
+                    # Modify quantity if greater in session cart
+                    existing_cart_variant.quantity = line.quantity
+                    existing_cart_variant.save()
+
+                if not existing_cart_variant:
+                    # Duplicate
+                    line.pk = None
+                    line.cart = db_cart
+                    line.save()
+
+    elif session_cart:
+        final_cart = session_cart
+
+        session_cart.user = user
+        session_cart.save()
+
+        for line in session_cart.lines.all():
+            if not line.has_stock:
+                line.delete()
+
+    close_queryset = Cart.objects.from_store(request.store).open().for_user(user)
+
+    if final_cart:
+        close_queryset = close_queryset.exclude(pk=final_cart.pk)
+
+    close_queryset.update(status=Cart.CANCELED)
 
 
 def add_to_cart(request, variant):

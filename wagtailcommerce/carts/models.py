@@ -46,15 +46,29 @@ class CartQueryset(models.QuerySet):
         """
         return self.filter(status=Cart.CANCELED)
 
+    def replaced(self):
+        """
+        Return 'REPLACED' carts.
+        """
+        return self.filter(status=Cart.REPLACED)
+
+    def paid(self):
+        """
+        Return 'PAID' carts.
+        """
+        return self.filter(status=Cart.PAID)
+
 
 class Cart(models.Model):
     OPEN = 'open'
-    LOCKED = 'locked'  # Can't be modified. Cloned and locked prior to payment.
     CANCELED = 'canceled'  # No longer relevant
+    PAID = 'paid'  # Purchased cart
+    REPLACED = 'replaced'  # Superseeded by another cart
 
     STATUS_CHOICES = (
         (OPEN, pgettext_lazy('Cart status', 'Open')),
-        (LOCKED, pgettext_lazy('Cart status', 'Locked')),
+        (REPLACED, pgettext_lazy('Cart status', 'Replaced')),
+        (PAID, pgettext_lazy('Cart status', 'Paid')),
         (CANCELED, pgettext_lazy('Cart status', 'Canceled')),
     )
 
@@ -114,6 +128,10 @@ class CartLine(models.Model):
 
         return image_sets[0].images.first().image
 
+    def has_stock(self):
+        return True if self.variant and self.variant.stock > 0 else False
+
     class Meta:
         verbose_name = _('cart line')
         verbose_name_plural = _('cart lines')
+        ordering = ('created', )
