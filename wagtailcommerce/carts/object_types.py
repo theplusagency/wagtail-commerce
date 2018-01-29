@@ -6,16 +6,6 @@ from wagtailcommerce.graphql_api.object_types import WagtailImageType
 from wagtailcommerce.products.object_types import ProductVariantType
 
 
-class CartType(DjangoObjectType):
-    total = graphene.Field(graphene.Float)
-
-    def resolve_total(self, info, **kwargs):
-        return self.get_total()
-
-    class Meta:
-        model = Cart
-
-
 class CartLineType(DjangoObjectType):
     main_image = graphene.Field(WagtailImageType)
     variant = graphene.Field(ProductVariantType)
@@ -29,3 +19,17 @@ class CartLineType(DjangoObjectType):
 
     class Meta:
         model = CartLine
+
+
+class CartType(DjangoObjectType):
+    total = graphene.Field(graphene.Float)
+    lines = graphene.List(CartLineType)
+
+    def resolve_total(self, info, **kwargs):
+        return self.get_total()
+
+    def resolve_lines(self, info, **kwargs):
+        return self.lines.all()
+
+    class Meta:
+        model = Cart

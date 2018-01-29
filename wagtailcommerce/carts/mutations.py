@@ -1,8 +1,9 @@
 import graphene
 from django.utils.translation import ugettext_lazy as _
 
+from wagtailcommerce.carts.utils import get_cart_from_request
 from wagtailcommerce.carts.exceptions import CartException
-from wagtailcommerce.carts.object_types import CartLineType
+from wagtailcommerce.carts.object_types import CartType, CartLineType
 
 
 class ModifyCartLine(graphene.Mutation):
@@ -11,7 +12,7 @@ class ModifyCartLine(graphene.Mutation):
         quantity = graphene.Int()
 
     success = graphene.Boolean()
-    cart_line = graphene.Field(lambda: CartLineType)
+    cart = graphene.Field(lambda: CartType)
     deleted = graphene.Boolean()
     errors = graphene.List(graphene.String)
 
@@ -30,12 +31,13 @@ class ModifyCartLine(graphene.Mutation):
             if cart_line is not None:
                 return ModifyCartLine(
                     success=True,
-                    cart_line=cart_line
+                    cart=get_cart_from_request(info.context)
                 )
             else:
                 return ModifyCartLine(
                     success=True,
-                    deleted=True
+                    deleted=True,
+                    cart=get_cart_from_request(info.context)
                 )
 
         except ProductVariant.DoesNotExist:
@@ -47,7 +49,7 @@ class AddToCart(graphene.Mutation):
         variant_pk = graphene.String()
 
     success = graphene.Boolean()
-    cart_line = graphene.Field(lambda: CartLineType)
+    cart = graphene.Field(lambda: CartType)
     errors = graphene.List(graphene.String)
     disableVariant = graphene.Boolean()
 
@@ -61,10 +63,11 @@ class AddToCart(graphene.Mutation):
             if variant.stock < 1:
                 return AddToCart(success=False, errors=[_('No more products available for the selected size')], disableVariant=True)
             else:
-                cart_line = add_to_cart(info.context, variant)
+                add_to_cart(info.context, variant)
+
                 return AddToCart(
                     success=True,
-                    cart_line=cart_line
+                    cart=get_cart_from_request(info.context)
                 )
 
         except ProductVariant.DoesNotExist:
