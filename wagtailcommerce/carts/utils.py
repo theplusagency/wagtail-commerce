@@ -1,6 +1,16 @@
+from datetime import timedelta
+
 from wagtailcommerce.carts.exceptions import CartException
 
-COOKIE_NAME = 'cart'
+SESSION_KEY_NAME = 'cart_token'
+
+
+def set_cart_cookie(cart, request):
+    """
+    Save a cart token in the session
+    """
+    # FIXME: check why session is not used in Saleor
+    request.session[SESSION_KEY_NAME] = '{}'.format(cart.token)
 
 
 def get_anonymous_cart_from_token(store, token):
@@ -31,7 +41,7 @@ def get_cart_from_request(request):
         cart = get_user_cart(request.store, request.user)
         user = request.user
     else:
-        token = request.get_signed_cookie(COOKIE_NAME, default=None)
+        token = request.session.get(SESSION_KEY_NAME, None)
         cart = get_anonymous_cart_from_token(request.store, token)
         user = None
 
@@ -50,7 +60,7 @@ def add_to_cart(request, variant):
     cart = get_cart_from_request(request)
 
     if not getattr(cart, 'pk', None):
-        cart = cart.save()
+        cart.save()
 
     try:
         cart_line = cart.lines.get(variant=variant)
@@ -58,6 +68,9 @@ def add_to_cart(request, variant):
         cart_line.save()
     except CartLine.DoesNotExist:
         cart_line = CartLine.objects.create(cart=cart, variant=variant, quantity=1)
+
+    if not request.user.is_authenticated:
+        set_cart_cookie(cart, request)
 
     return cart_line
 
