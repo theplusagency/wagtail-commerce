@@ -49,7 +49,7 @@ class PlaceOrder(graphene.Mutation):
                     'picture_url': 'https://www.peaksport.com.ar/media/images/01-E73001A-MONSTER-A-LAKERS-BLACK.max-800x400.png',
                     'category_id': 'fashion',
                     'quantity': line.quantity,
-                    'unit_price': float(line.line_price),
+                    'unit_price': float(line.item_price_with_discount),
                 } for line in order.lines.select_related('product_variant', 'product_variant__product').all()
             ],
             'payer': {

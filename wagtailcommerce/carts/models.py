@@ -3,10 +3,10 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-
-
 from django.db import models
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+
+from wagtailcommerce.promotions.models import Coupon
 
 
 class CartQueryset(models.QuerySet):
@@ -72,12 +72,15 @@ class Cart(models.Model):
         (CANCELED, pgettext_lazy('Cart status', 'Canceled')),
     )
 
-    store = models.ForeignKey('wagtailcommerce_stores.store', related_name='carts')
+    store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='carts')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, related_name='carts',
                              on_delete=models.CASCADE, verbose_name=_('user'))
     status = models.CharField(_('status'), max_length=128, default=OPEN, choices=STATUS_CHOICES)
 
     token = models.UUIDField(_('token'), db_index=True, default=uuid4, editable=False)
+
+    coupon = models.ForeignKey('wagtailcommerce_promotions.Coupon', null=True, blank=True,
+                               on_delete=models.SET_NULL)
 
     updated = models.DateTimeField(_('updated on'), auto_now=True)
     created = models.DateTimeField(_('created on'), auto_now_add=True)
@@ -87,11 +90,24 @@ class Cart(models.Model):
     def __str__(self):
         return "{}".format(self.pk)
 
-    def get_total(self):
-        total = Decimal('0')
+    def get_subtotal(self):
+        subtotal = Decimal('0')
+
         for l in self.lines.all():
-            total += l.variant.product.price * Decimal(l.quantity)
-        return total
+            subtotal += l.variant.product.price * Decimal(l.quantity)
+
+        return subtotal
+
+    def get_total(self):
+        return self.get_subtotal() - self.get_discount()
+
+    def get_discount(self):
+        if self.coupon:
+            if self.coupon.coupon_type == Coupon.ORDER_TOTAL and self.coupon.coupon_mode == Coupon.COUPON_MODE_PERCENTAGE:
+                subtotal = self.get_subtotal()
+                return subtotal * (self.coupon.coupon_amount / 100)
+
+        return Decimal('0')
 
     class Meta:
         verbose_name = _('cart')
@@ -104,9 +120,6 @@ class CartLine(models.Model):
     quantity = models.PositiveIntegerField(_('quantity'))
 
     created = models.DateTimeField(_('created on'), auto_now_add=True)
-
-    def get_total(self):
-        return self.variant.product.price * self.quantity
 
     def get_image(self):
         """
@@ -130,6 +143,22 @@ class CartLine(models.Model):
 
     def has_stock(self):
         return True if self.variant and self.variant.stock > 0 else False
+
+    def get_item_price(self):
+        return self.variant.product.price
+
+    def get_item_discount(self):
+        if self.cart.coupon:
+            if self.cart.coupon.coupon_type == Coupon.ORDER_TOTAL and self.cart.coupon.coupon_mode == Coupon.COUPON_MODE_PERCENTAGE:
+                return self.get_item_price() * (self.cart.coupon.coupon_amount / 100)
+
+        return Decimal('0')
+
+    def get_item_price_with_discount(self):
+        return self.get_item_price() - self.get_item_discount()
+
+    def get_total(self):
+        return self.get_item_price_with_discount() * self.quantity
 
     class Meta:
         verbose_name = _('cart line')

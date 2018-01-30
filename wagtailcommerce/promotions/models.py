@@ -2,46 +2,53 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-class Voucher(models.Model):
+class Coupon(models.Model):
     CATEGORY_TYPE = 'category'
+    ORDER_TOTAL = 'order_total'
     PRODUCTS_TYPE = 'products'
     SHIPPING_TYPE = 'shipping'
 
-    VOUCHER_TYPE_CHOICES = (
-        (CATEGORY_TYPE, _('Products in categories')),
-        (PRODUCTS_TYPE, _('Specific products')),
-        (SHIPPING_TYPE, _('Shipping cost'))
+    COUPON_TYPE_CHOICES = (
+        (ORDER_TOTAL, _('Discount on order total')),
+        # (CATEGORY_TYPE, _('Products in categories')),
+        # (PRODUCTS_TYPE, _('Specific products')),
+        # (SHIPPING_TYPE, _('Shipping cost'))
     )
 
-    VOUCHER_MODE_FIXED = 'fixed'
-    VOUCHER_MODE_PERCENTAGE = 'percentage'
+    COUPON_MODE_FIXED = 'fixed'
+    COUPON_MODE_PERCENTAGE = 'percentage'
 
-    VOUCHER_MODE_CHOICES = (
-        (VOUCHER_MODE_FIXED, _('Fixed amount')),
-        (VOUCHER_MODE_PERCENTAGE, _('Percentage'))
+    COUPON_MODE_CHOICES = (
+        # (COUPON_MODE_FIXED, _('Fixed amount')),
+        (COUPON_MODE_PERCENTAGE, _('Percentage')),
     )
 
     name = models.CharField(_('name'), max_length=255)
     code = models.CharField(_('code'), max_length=40, unique=True, db_index=True)
 
-    voucher_type = models.CharField(_('voucher type'), max_length=20, choices=VOUCHER_TYPE_CHOICES)
-    voucher_mode = models.CharField(_('voucher mode'), max_length=20, choices=VOUCHER_MODE_CHOICES)
-    voucher_amount = models.DecimalField(_('voucher amount'), decimal_places=2, max_digits=12)
+    coupon_type = models.CharField(_('coupon type'), max_length=20, choices=COUPON_TYPE_CHOICES)
+    coupon_mode = models.CharField(_('coupon mode'), max_length=20, choices=COUPON_MODE_CHOICES)
+    coupon_amount = models.DecimalField(_('coupon amount'), decimal_places=2, max_digits=12)
 
     usage_limit = models.PositiveIntegerField(_('usage limit'), null=True, blank=True)
     used = models.PositiveIntegerField(default=0, editable=False)
 
+    auto_assign_to_new_users = models.BooleanField(_('auto assign to new users'))
+
+    active = models.BooleanField(_('active'), default=True)
+
     valid_from = models.DateTimeField(_('valid from'), blank=True, null=True)
-    valid_until = models.DateTimeField(_('valid from'), blank=True, null=True)
+    valid_until = models.DateTimeField(_('valid until'), blank=True, null=True)
 
-    product_variants = models.ManyToManyField('wagtailcommerce_products.ProductVariant', related_name='vouchers')
+    product_variants = models.ManyToManyField('wagtailcommerce_products.ProductVariant', related_name='coupons', blank=True)
 
-    auto_generated = models.BooleanField(_('auto generated'), editable=False)
+    auto_generated = models.BooleanField(_('auto generated'), editable=False, default=False)
+
     created = models.DateTimeField(_('created on'), auto_now_add=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = _('voucher')
-        verbose_name_plural = _('vouchers')
+        verbose_name = _('coupon')
+        verbose_name_plural = _('coupons')

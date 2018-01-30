@@ -6,7 +6,7 @@ from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _
 
 from wagtailcommerce.orders.signals import order_paid
-from wagtailcommerce.promotions.models import Voucher
+from wagtailcommerce.promotions.models import Coupon
 
 
 class Order(models.Model):
@@ -41,12 +41,12 @@ class Order(models.Model):
     # TODO: multi-currency support. Now a single store can only have one currency.
     # currency = models.ForeignKey('stores.Currency', related_name='orders', verbose_name=_('currency'))
 
-    # Voucher information 
-    voucher = models.ForeignKey('wagtailcommerce_promotions.Voucher', verbose_name=_('voucher'), blank=True, null=True, related_name='orders')
-    voucher_type = models.CharField(_('voucher type'), max_length=20, choices=Voucher.VOUCHER_TYPE_CHOICES, blank=True)
-    voucher_mode = models.CharField(_('voucher mode'), max_length=20, choices=Voucher.VOUCHER_MODE_CHOICES, blank=True)
-    voucher_amount = models.DecimalField(_('voucher amount'), decimal_places=2, max_digits=12, blank=True, null=True)
-    voucher_code = models.CharField(_('voucher code'), max_length=40, blank=True)
+    # Coupon information 
+    coupon = models.ForeignKey('wagtailcommerce_promotions.Coupon', verbose_name=_('coupon'), blank=True, null=True, related_name='orders')
+    coupon_type = models.CharField(_('coupon type'), max_length=20, choices=Coupon.COUPON_TYPE_CHOICES, blank=True)
+    coupon_mode = models.CharField(_('coupon mode'), max_length=20, choices=Coupon.COUPON_MODE_CHOICES, blank=True)
+    coupon_amount = models.DecimalField(_('coupon amount'), decimal_places=2, max_digits=12, blank=True, null=True)
+    coupon_code = models.CharField(_('coupon code'), max_length=40, blank=True)
 
     date_placed = models.DateTimeField(db_index=True, auto_now_add=True)
     date_paid = models.DateTimeField(db_index=True, blank=True, null=True)
@@ -95,12 +95,10 @@ class OrderLine(models.Model):
     product_variant = models.ForeignKey('wagtailcommerce_products.ProductVariant', related_name='lines',
                                         null=True, blank=True, on_delete=models.SET_NULL)
     quantity = models.PositiveIntegerField(_('quantity'), default=1)
-    line_price = models.DecimalField(_('line price'), decimal_places=2, max_digits=12)
-
-    voucher_type = models.CharField(_('discount type'), max_length=20, choices=Voucher.VOUCHER_TYPE_CHOICES, blank=True)
-    voucher_mode = models.CharField(_('discount mode'), max_length=20, choices=Voucher.VOUCHER_MODE_CHOICES, blank=True)
-    voucher_amount = models.DecimalField(_('discount amount'), decimal_places=2, max_digits=12, blank=True, null=True)
-    voucher_voucher_code = models.CharField(_('code'), max_length=40, blank=True)
+    item_price = models.DecimalField(_('item price'), decimal_places=2, max_digits=12)
+    item_discount = models.DecimalField(_('item discount'), decimal_places=2, max_digits=12)
+    item_price_with_discount = models.DecimalField(_('item price with discount'), decimal_places=2, max_digits=12)
+    line_total = models.DecimalField(_('total'), decimal_places=2, max_digits=12)
 
     # Persistent fields. If the linked Product Variant is deleted, the SKU, product name and variant desc. persist.
     product_name = models.CharField(_('product name'), max_length=255)

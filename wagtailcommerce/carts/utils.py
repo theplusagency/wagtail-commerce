@@ -1,5 +1,9 @@
+from django.db.models import Q
+from django.utils import timezone
+
 from wagtailcommerce.carts.exceptions import CartException
 from wagtailcommerce.carts.models import Cart, CartLine
+from wagtailcommerce.promotions.models import Coupon
 
 SESSION_KEY_NAME = 'cart_token'
 
@@ -45,6 +49,28 @@ def get_cart_from_request(request):
         user = None
 
     if cart is not None:
+        current_time = timezone.now()
+
+        # Try to find existing coupon
+        if cart.coupon:
+            if (not cart.coupon.active or (cart.coupon.valid_from and cart.coupon.valid_from > current_time) or
+                    (cart.coupon.valid_until and cart.coupon.valid_until < current_time)):
+                # Coupon has been deactivated or expired, remove from cart
+                cart.coupon = None
+                cart.save()
+
+        else:
+            # Look for auto-assignment coupons
+            coupon = Coupon.objects.filter(
+                Q(valid_from__isnull=True) | Q(valid_from__lte=current_time),
+                Q(valid_until__isnull=True) | Q(valid_until__gte=current_time),
+                active=True, auto_assign_to_new_users=True
+            ).latest('created')
+
+            if coupon:
+                cart.coupon = coupon
+                cart.save()
+
         return cart
 
     return Cart(user=user, store=request.store)

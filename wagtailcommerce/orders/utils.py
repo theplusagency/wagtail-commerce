@@ -17,10 +17,11 @@ def create_order(request, shipping_address, billing_address, cart=None):
 
     order_billing_address = billing_address
     order_billing_address.pk = None
-    order_shipping_address.user = None
+    order_billing_address.user = None
     order_billing_address.save()
 
     cart_total = cart.get_total()
+    cart_discount = cart.get_discount()
 
     order = Order.objects.create(
         store=request.store,
@@ -28,7 +29,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
         shipping_address=order_shipping_address,
         billing_address=order_billing_address,
         subtotal=cart_total,
-        product_discount=Decimal('0'),
+        product_discount=cart_discount,
         product_tax=Decimal('0'),
         shipping_cost=Decimal('0'),
         shipping_cost_discount=Decimal('0'),
@@ -45,7 +46,10 @@ def create_order(request, shipping_address, billing_address, cart=None):
             sku=line.variant.sku,
             product_variant=line.variant,
             quantity=line.quantity,
-            line_price=line.variant.product.price,
+            item_price=line.get_item_price(),
+            item_discount=line.get_item_discount(),
+            item_price_with_discount=line.get_item_price_with_discount(),
+            line_total=line.get_total(),
             product_name=line.variant.product.name,
             product_variant_description=line.variant.__str__(),
         )
