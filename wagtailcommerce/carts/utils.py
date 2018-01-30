@@ -61,15 +61,17 @@ def get_cart_from_request(request):
 
         else:
             # Look for auto-assignment coupons
-            coupon = Coupon.objects.filter(
-                Q(valid_from__isnull=True) | Q(valid_from__lte=current_time),
-                Q(valid_until__isnull=True) | Q(valid_until__gte=current_time),
-                active=True, auto_assign_to_new_users=True
-            ).latest('created')
+            try:
+                coupon = Coupon.objects.filter(
+                    Q(valid_from__isnull=True) | Q(valid_from__lte=current_time),
+                    Q(valid_until__isnull=True) | Q(valid_until__gte=current_time),
+                    active=True, auto_assign_to_new_users=True
+                ).latest('created')
 
-            if coupon:
                 cart.coupon = coupon
                 cart.save()
+            except Coupon.DoesNotExist:
+                pass
 
         return cart
 
