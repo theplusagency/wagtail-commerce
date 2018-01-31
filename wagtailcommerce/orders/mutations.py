@@ -46,7 +46,7 @@ class PlaceOrder(graphene.Mutation):
                     'id': line.product_variant.product.identifier,
                     'title': line.product_variant.product.name,
                     'currency_id': 'ARS',
-                    'picture_url': 'https://www.peaksport.com.ar/media/images/01-E73001A-MONSTER-A-LAKERS-BLACK.max-800x400.png',
+                    'picture_url': '{}{}'.format(root_url, line.product_thumbnail.url),
                     'category_id': 'fashion',
                     'quantity': line.quantity,
                     'unit_price': float(line.item_price_with_discount),

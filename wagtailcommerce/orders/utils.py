@@ -57,7 +57,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
         image = line.get_image()
 
         if image:
-            source_file = image.get_rendition('max-400x400|format-jpeg|bgcolor-ffffff').image
+            source_file = image.get_rendition('max-400x400|format-jpeg|bgcolor-ffffff')
             file_content = ContentFile(source_file.file.read())
             file_name = os.path.split(source_file.file.name)[-1]
 
