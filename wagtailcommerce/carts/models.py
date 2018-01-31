@@ -109,6 +109,14 @@ class Cart(models.Model):
 
         return Decimal('0')
 
+    def get_item_count(self):
+        q = 0
+
+        for line in self.lines.all():
+            q += line.quantity
+
+        return q
+
     class Meta:
         verbose_name = _('cart')
         verbose_name_plural = _('carts')

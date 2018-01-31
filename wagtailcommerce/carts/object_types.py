@@ -41,6 +41,7 @@ class CartType(DjangoObjectType):
     discount = graphene.Field(graphene.Float)
     total = graphene.Field(graphene.Float)
     lines = graphene.List(CartLineType)
+    item_count = graphene.Int()
 
     def resolve_total(self, info, **kwargs):
         return float(self.get_total())
@@ -50,6 +51,9 @@ class CartType(DjangoObjectType):
 
     def resolve_lines(self, info, **kwargs):
         return self.lines.all()
+
+    def resolve_item_count(self, info, **kwargs):
+        return self.get_item_count()
 
     class Meta:
         model = Cart
