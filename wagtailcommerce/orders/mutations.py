@@ -46,7 +46,7 @@ class PlaceOrder(graphene.Mutation):
                     'id': line.product_variant.product.identifier,
                     'title': line.product_variant.product.name,
                     'currency_id': 'ARS',
-                    'picture_url': '{}{}'.format(root_url, line.product_thumbnail.url),
+                    'picture_url': '{}{}'.format(root_url, line.product_thumbnail.url) if line.product_thumbnail else '',
                     'category_id': 'fashion',
                     'quantity': line.quantity,
                     'unit_price': float(line.item_price_with_discount),

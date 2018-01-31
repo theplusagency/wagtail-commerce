@@ -58,12 +58,16 @@ def create_order(request, shipping_address, billing_address, cart=None):
 
         if image:
             source_file = image.get_rendition('max-400x400|format-jpeg|bgcolor-ffffff')
-            file_content = ContentFile(source_file.file.read())
-            file_name = os.path.split(source_file.file.name)[-1]
+            if source_file.file:
+                try:
+                    file_content = ContentFile(source_file.file.read())
+                    file_name = os.path.split(source_file.file.name)[-1]
 
-            order_line.product_thumbnail.save(file_name, file_content, save=False)
+                    order_line.product_thumbnail.save(file_name, file_content, save=False)
 
-            source_file.file.close()
+                    source_file.file.close()
+                except FileNotFoundError:
+                    pass
 
         order_lines.append(order_line)
 
