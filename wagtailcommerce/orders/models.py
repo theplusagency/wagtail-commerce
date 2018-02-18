@@ -10,12 +10,18 @@ from wagtailcommerce.promotions.models import Coupon
 
 
 class Order(models.Model):
+    PAYMENT_PENDING = 'payment_pending'
+    AWAITING_PAYMENT_CONFIRMATION = 'awaiting_payment_confirmation'
+    AWAITING_PAYMENT_AUTHORIZATION = 'awaiting_payment_authorization'
+    PAID = 'paid'
+    CANCELLED = 'cancellled'
+
     ORDER_STATUS_OPTIONS = (
-        ('payment_pending', _('Payment pending')),
-        ('awaiting_payment_confirmation', _('Awaiting payment confirmation')),
-        ('awaiting_payment_authorization', _('Awaiting payment authorization')),
-        ('paid', _('Paid')),
-        ('cancelled', _('Cancelled')),
+        (PAYMENT_PENDING, _('Payment pending')),
+        (AWAITING_PAYMENT_CONFIRMATION, _('Awaiting payment confirmation')),
+        (AWAITING_PAYMENT_AUTHORIZATION, _('Awaiting payment authorization')),
+        (PAID, _('Paid')),
+        (CANCELLED, _('Cancelled')),
     )
 
     identifier = models.CharField(_('identifier'), max_length=8, db_index=True, unique=True)
@@ -23,6 +29,8 @@ class Order(models.Model):
     status = models.CharField(_('status'), max_length=30, choices=ORDER_STATUS_OPTIONS,
                               default='payment_pending')
 
+    cart = models.ForeignKey('wagtailcommerce_carts.Cart', related_name='orders', verbose_name=_('cart'),
+                             blank=True, null=True, on_delete=models.SET_NULL)
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='orders', verbose_name=_('store'))
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='orders', verbose_name=_('user'))
     billing_address = models.ForeignKey('wagtailcommerce_addresses.Address', blank=True, null=True, related_name='orders_by_billing_address')

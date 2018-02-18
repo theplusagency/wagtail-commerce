@@ -187,3 +187,32 @@ def modify_cart_line(request, variant, quantity):
         return cart_line
     except CartLine.DoesNotExist:
         raise CartException()
+
+
+def modify_cart_status(cart, next_status):
+    """
+    Modify cart status
+    """
+    cart.status = next_status
+    cart.save()
+
+
+def cart_awaiting_payment(cart):
+    if cart.status != cart.OPEN:
+        return
+
+    modify_cart_status(cart, cart.AWAITING_PAYMENT)
+
+
+def cart_paid(cart):
+    if cart.status in [cart.CANCELED, cart.PAID]:
+        return
+
+    modify_cart_status(cart, cart.PAID)
+
+
+def reopen_cart(cart):
+    open_cart_exists = Cart.objects.filter(user=cart.user, store=cart.store, status=Cart.OPEN).exists()
+
+    if not open_cart_exists:
+        modify_cart_status(cart, Cart.OPEN)

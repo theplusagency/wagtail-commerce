@@ -62,12 +62,14 @@ class CartQueryset(models.QuerySet):
 class Cart(models.Model):
     OPEN = 'open'
     CANCELED = 'canceled'  # No longer relevant
+    AWAITING_PAYMENT = 'awaiting_payment'
     PAID = 'paid'  # Purchased cart
     REPLACED = 'replaced'  # Superseeded by another cart
 
     STATUS_CHOICES = (
         (OPEN, pgettext_lazy('Cart status', 'Open')),
         (REPLACED, pgettext_lazy('Cart status', 'Replaced')),
+        (AWAITING_PAYMENT, pgettext_lazy('Cart status', 'Awaiting payment')),
         (PAID, pgettext_lazy('Cart status', 'Paid')),
         (CANCELED, pgettext_lazy('Cart status', 'Canceled')),
     )

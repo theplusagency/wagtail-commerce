@@ -3,6 +3,7 @@ import mercadopago
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
 
 from wagtailcommerce.addresses.models import Address
 from wagtailcommerce.orders.object_types import OrderObjectType
@@ -21,6 +22,7 @@ class PlaceOrder(graphene.Mutation):
     order = graphene.Field(lambda: OrderObjectType)
     errors = graphene.List(graphene.String)
 
+    @transaction.atomic
     def mutate(self, info, shipping_address_pk, billing_address_pk, *args):
         try:
             shipping_address = Address.objects.get(user=info.context.user, pk=shipping_address_pk)

@@ -2,7 +2,9 @@ import os
 from decimal import Decimal
 
 from django.core.files.base import ContentFile
-from wagtailcommerce.carts.utils import get_cart_from_request
+
+from wagtailcommerce.carts.models import Cart
+from wagtailcommerce.carts.utils import cart_awaiting_payment, cart_paid, get_cart_from_request, reopen_cart
 from wagtailcommerce.orders.models import Order, OrderLine
 
 
@@ -24,6 +26,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
     cart_discount = cart.get_discount()
 
     order = Order.objects.create(
+        cart=cart,
         store=request.store,
         user=request.user,
         shipping_address=order_shipping_address,
@@ -73,4 +76,37 @@ def create_order(request, shipping_address, billing_address, cart=None):
 
     OrderLine.objects.bulk_create(order_lines)
 
+    # Mark cart as awaiting payment so it doesn't show up on the store
+    # It can be recovered later if payment fails
+    cart_awaiting_payment(cart)
+
     return order
+
+
+def modify_order_status(order, next_status):
+    """
+    Modify order status
+    """
+    order.status = next_status
+    order.save()
+
+
+def order_awaiting_payment_confirmation(order):
+    if order.status != Order.PAYMENT_PENDING:
+        modify_order_status(order, Order.AWAITING_PAYMENT_CONFIRMATION)
+
+
+def order_paid(order):
+    modify_order_status(order, Order.PAID)
+
+    cart = getattr(order, 'cart', None)
+
+    if cart:
+        cart_paid(cart)
+
+
+def order_cancelled(order):
+    modify_order_status(order, Order.CANCELLED)
+
+    if order.cart:
+        reopen_cart(order.cart)
