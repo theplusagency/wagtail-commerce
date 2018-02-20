@@ -53,4 +53,12 @@ class EditAddress(graphene.Mutation):
 
         address_instance.save()
 
+        if address_instance.default_shipping_address:
+            info.context.user.addresses.exclude(pk=address_instance.pk).filter(
+                default_shipping_address=True).update(default_shipping_address=False)
+
+        if address_instance.default_billing_address:
+            info.context.user.addresses.exclude(pk=address_instance.pk).filter(
+                default_billing_address=True).update(default_billing_address=False)
+
         return EditAddress(success=True, user=info.context.user)

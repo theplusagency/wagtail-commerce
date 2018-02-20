@@ -47,4 +47,4 @@ class Address(models.Model):
     class Meta:
         verbose_name = _('Address')
         verbose_name_plural = _('Addresses')
-        ordering = ('-created', )
+        ordering = ('-default_shipping_address', '-default_billing_address', '-created', )
