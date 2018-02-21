@@ -1,5 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
+from modelcluster.models import ClusterableModel
+
+from wagtail.wagtailadmin.edit_handlers import FieldPanel
 
 SHIPPING_METHOD_MODEL_CLASSES = []
 
@@ -12,7 +17,7 @@ def get_default_shipping_method_content_type():
     return ContentType.objects.get_for_model(ShippingMethod)
 
 
-class ShippingMethodBase(object):
+class ShippingMethodBase(models.base.ModelBase):
     """
     Metaclass for Shipping Method
     """
@@ -21,9 +26,9 @@ class ShippingMethodBase(object):
 
         if not cls._meta.abstract:
             # register this type in the list of page content types
-            SHIPPING_MODEL_CLASSES.append(cls)
+            SHIPPING_METHOD_MODEL_CLASSES.append(cls)
 
-        print(SHIPPING_MODEL_CLASSES)
+        print(SHIPPING_METHOD_MODEL_CLASSES)
 
 
 class ShippingMethodQueryset(models.QuerySet):
@@ -51,7 +56,7 @@ class AbstractShippingMethod(object):
         abstract = True
 
 
-class ShippingMethod(ShippingMethodBase, AbstractShippingMethod, models.Model):
+class ShippingMethod(AbstractShippingMethod, ClusterableModel, metaclass=ShippingMethodBase):
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='shipping_methods')
 
     content_type = models.ForeignKey(
@@ -60,6 +65,20 @@ class ShippingMethod(ShippingMethodBase, AbstractShippingMethod, models.Model):
         related_name='shipping_methods',
         on_delete=models.SET(get_default_shipping_method_content_type)
     )
+
+    panels = [
+        FieldPanel('store'),
+    ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.id:
+            # this model is being newly created
+            # rather than retrieved from the db;
+            if not self.content_type_id:
+                # set content type to correctly represent the model class
+                # that this was created as
+                self.content_type = ContentType.objects.get_for_model(self)
 
     def calculate_cost(self, cart, address):
         """
