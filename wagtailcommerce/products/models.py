@@ -109,7 +109,6 @@ class AbstractProduct(models.Model):
 
     class Meta:
         abstract = True
-        app_label = 'wagtailcommerce_products'
 
 
 class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
@@ -155,7 +154,7 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
         return self.name
 
     def __init__(self, *args, **kwargs):
-        super(Product, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.id:
             # this model is being newly created
             # rather than retrieved from the db;
@@ -258,7 +257,6 @@ class AbstractProductVariant(models.Model):
 
     class Meta:
         abstract = True
-        app_label = 'wagtailcommerce_products'
 
 
 class ProductVariantBase(models.base.ModelBase):

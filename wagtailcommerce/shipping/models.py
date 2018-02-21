@@ -17,20 +17,6 @@ def get_default_shipping_method_content_type():
     return ContentType.objects.get_for_model(ShippingMethod)
 
 
-class ShippingMethodBase(models.base.ModelBase):
-    """
-    Metaclass for Shipping Method
-    """
-    def __init__(cls, name, bases, dct):
-        super(ShippingMethodBase, cls).__init__(name, bases, dct)
-
-        if not cls._meta.abstract:
-            # register this type in the list of page content types
-            SHIPPING_METHOD_MODEL_CLASSES.append(cls)
-
-        print(SHIPPING_METHOD_MODEL_CLASSES)
-
-
 class ShippingMethodQueryset(models.QuerySet):
     pass
 
@@ -43,7 +29,19 @@ class BaseShippingMethodManager(models.Manager):
 ShippingMethodManager = BaseShippingMethodManager.from_queryset(ShippingMethodQueryset)
 
 
-class AbstractShippingMethod(object):
+class ShippingMethodBase(models.base.ModelBase):
+    """
+    Metaclass for Shipping Method
+    """
+    def __init__(cls, name, bases, dct):
+        super(ShippingMethodBase, cls).__init__(name, bases, dct)
+
+        if not cls._meta.abstract:
+            # register this type in the list of page content types
+            SHIPPING_METHOD_MODEL_CLASSES.append(cls)
+
+
+class AbstractShippingMethod(models.Model):
     """
     Abstract superclass for Page. According to Django's inheritance rules, managers set on
     abstract models are inherited by subclasses, but managers set on concrete models that are extended
@@ -91,10 +89,6 @@ class ShippingMethod(AbstractShippingMethod, ClusterableModel, metaclass=Shippin
         Generate the actual shipment order
         """
         raise NotImplementedError
-
-    class Meta:
-        verbose_name = _('shipping method')
-        verbose_name_plural = _('shipping methods')
 
 
 class Shipment(models.Model):
