@@ -3,9 +3,10 @@ from decimal import Decimal
 
 from django.core.files.base import ContentFile
 
-from wagtailcommerce.carts.models import Cart
 from wagtailcommerce.carts.utils import cart_awaiting_payment, cart_paid, get_cart_from_request, reopen_cart
 from wagtailcommerce.orders.models import Order, OrderLine
+
+from oca_shipping.models import OCAShippingMethod
 
 
 def create_order(request, shipping_address, billing_address, cart=None):
@@ -22,8 +23,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
     order_billing_address.user = None
     order_billing_address.save()
 
-    cart_total = cart.get_total()
-    cart_discount = cart.get_discount()
+    totals = cart.get_totals(shipping_address)
 
     order = Order.objects.create(
         cart=cart,
@@ -31,14 +31,14 @@ def create_order(request, shipping_address, billing_address, cart=None):
         user=request.user,
         shipping_address=order_shipping_address,
         billing_address=order_billing_address,
-        subtotal=cart_total,
-        product_discount=cart_discount,
+        subtotal=totals['subtotal'],
+        product_discount=totals['discount'],
         product_tax=Decimal('0'),
-        shipping_cost=Decimal('0'),
-        shipping_cost_discount=Decimal('0'),
-        shipping_cost_tax=Decimal('0'),
-        total=cart_total,
-        total_inc_tax=cart_total
+        shipping_cost=totals['shipping_cost'],
+        shipping_cost_discount=totals['shipping_cost_discount'],
+        shipping_cost_total=totals['shipping_cost_total'],
+        total=totals['total'],
+        total_inc_tax=totals['total']
     )
 
     order_lines = []

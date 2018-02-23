@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
 from wagtailcommerce.promotions.models import Coupon
+from wagtailcommerce.shipping.utils import get_shipping_cost as get_shipping_cost_util
 
 
 class CartQueryset(models.QuerySet):
@@ -100,8 +101,17 @@ class Cart(models.Model):
 
         return subtotal
 
-    def get_total(self):
-        return self.get_subtotal() - self.get_discount()
+    def get_total(self, address=None):
+        """
+        Get final including shipping (if address is supplied),
+        discounts taxes and product base cost.
+        """
+        total = self.get_subtotal() - self.get_discount()
+
+        if address:
+            total += self.get_shipping_cost(address)
+
+        return total
 
     def get_discount(self):
         if self.coupon:
@@ -118,6 +128,23 @@ class Cart(models.Model):
             q += line.quantity
 
         return q
+
+    def get_shipping_cost(self, address):
+        return get_shipping_cost_util(self, address)
+
+    def get_totals(self, address):
+        subtotal = self.get_subtotal()
+        discount = self.get_discount()
+        shipping_cost = self.get_shipping_cost(address)
+
+        return {
+            'subtotal': subtotal,
+            'discount': discount,
+            'shipping_cost': shipping_cost['cost'],
+            'shipping_cost_discount': shipping_cost['discount'],
+            'shipping_cost_total': shipping_cost['total'],
+            'total': subtotal - discount + shipping_cost['total']
+        }
 
     class Meta:
         verbose_name = _('cart')

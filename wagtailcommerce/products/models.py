@@ -278,6 +278,11 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
     price = models.DecimalField(_('price'), max_digits=12, decimal_places=2, blank=True, null=True)
     active = models.BooleanField(_('active'), default=True)
 
+    weight = models.DecimalField(_('weight'), max_digits=12, decimal_places=2, help_text=_('value stored in grams'), blank=True, null=True)
+    width = models.DecimalField(_('width'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
+    height = models.DecimalField(_('height'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
+    depth = models.DecimalField(_('depth'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
+
     stock = models.IntegerField(_('stock'), default=0)
 
     content_type = models.ForeignKey(

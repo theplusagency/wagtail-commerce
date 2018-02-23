@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import graphene
 import mercadopago
 
@@ -38,22 +40,33 @@ class PlaceOrder(graphene.Mutation):
 
         mp = mercadopago.MP(settings.MERCADOPAGO_CLIENT_ID, settings.MERCADOPAGO_CLIENT_SECRET)
 
-        accessToken = mp.get_access_token()
+        mp.get_access_token()
 
         root_url = info.context.site.root_url
 
+        items = [
+            {
+                'id': line.product_variant.product.identifier,
+                'title': line.product_variant.product.name,
+                'currency_id': 'ARS',
+                'picture_url': '{}{}'.format(root_url, line.product_thumbnail.url) if line.product_thumbnail else '',
+                'category_id': 'fashion',
+                'quantity': line.quantity,
+                'unit_price': float(line.item_price_with_discount),
+            } for line in order.lines.select_related('product_variant', 'product_variant__product').all()
+        ]
+
+        if order.shipping_cost_total > Decimal(0):
+            items.append({
+                'title': 'Envío',
+                'category_id': 'others',
+                'currency_id': 'ARS',
+                'quantity': 1,
+                'unit_price': float(order.shipping_cost_total)
+            })
+
         preference = {
-            'items': [
-                {
-                    'id': line.product_variant.product.identifier,
-                    'title': line.product_variant.product.name,
-                    'currency_id': 'ARS',
-                    'picture_url': '{}{}'.format(root_url, line.product_thumbnail.url) if line.product_thumbnail else '',
-                    'category_id': 'fashion',
-                    'quantity': line.quantity,
-                    'unit_price': float(line.item_price_with_discount),
-                } for line in order.lines.select_related('product_variant', 'product_variant__product').all()
-            ],
+            'items': items,
             'payer': {
                 'name': order.user.first_name,
                 'surname': order.user.last_name,

@@ -42,7 +42,7 @@ class Order(models.Model):
     product_tax = models.DecimalField(_('product tax'), decimal_places=2, max_digits=12)
     shipping_cost = models.DecimalField(_('shipping cost'), decimal_places=2, max_digits=12)
     shipping_cost_discount = models.DecimalField(_('shipping cost discount'), decimal_places=2, max_digits=12)
-    shipping_cost_tax = models.DecimalField(_('shipping cost tax'), decimal_places=2, max_digits=12)
+    shipping_cost_total = models.DecimalField(_('shipping cost total'), decimal_places=2, max_digits=12)
     total = models.DecimalField(_('order total'), decimal_places=2, max_digits=12)
     total_inc_tax = models.DecimalField(_('order total (inc. tax)'), decimal_places=2, max_digits=12)
 
