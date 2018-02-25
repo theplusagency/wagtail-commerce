@@ -284,6 +284,10 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
     depth = models.DecimalField(_('depth'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
 
     stock = models.IntegerField(_('stock'), default=0)
+    active = models.BooleanField(_('active'))
+
+    created = models.DateTimeField(_('created on'), auto_now_add=True)
+    modified = models.DateTimeField(_('modified on'), auto_now=True)
 
     content_type = models.ForeignKey(
         'contenttypes.ContentType',

@@ -13,7 +13,7 @@ class CartQuery(graphene.ObjectType):
 
     cart_totals = graphene.Field(
         lambda: CartTotalsObjectType,
-        address_pk=graphene.String(required=False),
+        address_pk=graphene.String(),
         shipping_method_code=graphene.String(required=False)
     )
 
@@ -22,12 +22,12 @@ class CartQuery(graphene.ObjectType):
             address = info.context.user.addresses.get(deleted=False, pk=address_pk)
             cart = get_cart_from_request(info.context)
 
-            shipping_cost = cart.get_shipping_cost(address)
+            totals = cart.get_totals(address)
 
             return CartTotalsObjectType(
-                shipping_cost=shipping_cost['total'],
+                shipping_cost=totals['shipping_cost'],
                 discount=cart.get_discount(),
-                total=cart.get_total() + shipping_cost['total']
+                total=totals['total']
             )
 
         except Address.DoesNotExist:
