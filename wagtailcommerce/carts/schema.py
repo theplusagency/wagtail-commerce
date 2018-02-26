@@ -25,7 +25,7 @@ class CartQuery(graphene.ObjectType):
             totals = cart.get_totals(address)
 
             return CartTotalsObjectType(
-                shipping_cost=totals['shipping_cost'],
+                shipping_cost=totals['shipping_cost_total'],
                 discount=cart.get_discount(),
                 total=totals['total']
             )
