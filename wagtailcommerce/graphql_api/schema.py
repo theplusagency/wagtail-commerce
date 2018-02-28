@@ -5,6 +5,7 @@ from wagtailcommerce.addresses.mutations import DeleteAddress, EditAddress
 from wagtailcommerce.carts.schema import CartQuery
 from wagtailcommerce.carts.mutations import AddToCart, ModifyCartLine
 from wagtailcommerce.products.schema import CategoriesQuery
+from wagtailcommerce.orders.schema import OrdersQuery
 from wagtailcommerce.orders.mutations import PlaceOrder
 from wagtailcommerce.shipping.schema import ShippingQuery
 
@@ -17,5 +18,5 @@ class WagtailCommerceMutations(graphene.ObjectType):
     modify_cart_line = ModifyCartLine.Field()
 
 
-class WagtailCommerceQueries(CategoriesQuery, CartQuery, UserQuery, ShippingQuery, graphene.ObjectType):
+class WagtailCommerceQueries(CategoriesQuery, CartQuery, OrdersQuery, UserQuery, ShippingQuery, graphene.ObjectType):
     pass

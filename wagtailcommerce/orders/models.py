@@ -68,6 +68,10 @@ class Order(models.Model):
 
             if previous_state.status != 'paid' and self.status == 'paid':
                 # Order has been paid, reduce product stock and trigger event
+                for line in self.lines.all():
+                    v = line.product_variant
+                    v.stock = v.stock - line.quantity
+                    v.save(update_fields=['stock'])
                 order_paid.send(Order, order=self)
         except Order.DoesNotExist:
             pass
