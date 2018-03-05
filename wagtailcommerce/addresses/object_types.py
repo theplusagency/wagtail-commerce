@@ -27,9 +27,13 @@ class AddressInput(graphene.InputObjectType):
 
 class AddressObjectType(DjangoObjectType):
     country_name = graphene.Field(graphene.String)
+    full_street = graphene.Field(graphene.String)
 
     def resolve_country_name(self, info):
         return self.get_country_display()
+
+    def resolve_full_street(self, info):
+        return self.full_street
 
     class Meta:
         model = Address

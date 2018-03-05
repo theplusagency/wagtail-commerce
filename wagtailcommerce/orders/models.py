@@ -1,6 +1,7 @@
 import shortuuid
 
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _
@@ -98,6 +99,7 @@ class Order(models.Model):
     class Meta:
         verbose_name = _('order')
         verbose_name_plural = _('orders')
+        ordering = ('-date_placed', )
 
 
 class OrderLine(models.Model):
@@ -115,6 +117,9 @@ class OrderLine(models.Model):
     # Persistent fields. If the linked Product Variant is deleted, the SKU, product name and variant desc. persist.
     product_name = models.CharField(_('product name'), max_length=255)
     product_variant_description = models.CharField(_('product variant description'), max_length=255)
+
+    # Stores serialized custom product information
+    product_details = JSONField()
 
     def __str__(self):
         return "{} ({})".format(self.product_name, self.quantity)
