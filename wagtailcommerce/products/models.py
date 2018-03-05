@@ -304,6 +304,12 @@ class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVaria
         FieldPanel('stock')
     ]
 
+    def get_details(self):
+        """
+        Should be overwritten on each specific task.
+        """
+        return {}
+
     @cached_property
     def specific(self):
         """
