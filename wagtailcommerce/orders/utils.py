@@ -55,6 +55,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
             line_total=line.get_total(),
             product_name=line.variant.product.name,
             product_variant_description=line.variant.__str__(),
+            product_details=line.variant.specific.get_details()
         )
 
         image = line.get_image()
@@ -76,10 +77,6 @@ def create_order(request, shipping_address, billing_address, cart=None):
 
     OrderLine.objects.bulk_create(order_lines)
 
-    # Mark cart as awaiting payment so it doesn't show up on the store
-    # It can be recovered later if payment fails
-    cart_awaiting_payment(cart)
-
     return order
 
 
@@ -91,9 +88,24 @@ def modify_order_status(order, next_status):
     order.save()
 
 
+def order_awaiting_payment_authorization(order):
+    if order.status not in [Order.AWAITING_PAYMENT_AUTHORIZATION, Order.PAID]:
+        modify_order_status(order, Order.AWAITING_PAYMENT_AUTHORIZATION)
+
+    cart = getattr(order, 'cart', None)
+
+    if cart:
+        cart_awaiting_payment(cart)
+
+
 def order_awaiting_payment_confirmation(order):
-    if order.status != Order.PAYMENT_PENDING:
+    if order.status not in [Order.AWAITING_PAYMENT_CONFIRMATION, Order.PAID]:
         modify_order_status(order, Order.AWAITING_PAYMENT_CONFIRMATION)
+
+    cart = getattr(order, 'cart', None)
+
+    if cart:
+        cart_awaiting_payment(cart)
 
 
 def order_paid(order):
@@ -107,6 +119,3 @@ def order_paid(order):
 
 def order_cancelled(order):
     modify_order_status(order, Order.CANCELLED)
-
-    if order.cart:
-        reopen_cart(order.cart)
