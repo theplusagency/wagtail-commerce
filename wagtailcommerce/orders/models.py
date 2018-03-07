@@ -6,11 +6,14 @@ from django.db import models
 from django.db.models import Sum
 from django.utils.translation import ugettext_lazy as _
 
+from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
+
 from wagtailcommerce.orders.signals import order_paid
 from wagtailcommerce.promotions.models import Coupon
 
 
-class Order(models.Model):
+class Order(ClusterableModel):
     PAYMENT_PENDING = 'payment_pending'
     AWAITING_PAYMENT_CONFIRMATION = 'awaiting_payment_confirmation'
     AWAITING_PAYMENT_AUTHORIZATION = 'awaiting_payment_authorization'
@@ -50,7 +53,7 @@ class Order(models.Model):
     # TODO: multi-currency support. Now a single store can only have one currency.
     # currency = models.ForeignKey('stores.Currency', related_name='orders', verbose_name=_('currency'))
 
-    # Coupon information 
+    # Coupon information
     coupon = models.ForeignKey('wagtailcommerce_promotions.Coupon', verbose_name=_('coupon'), blank=True, null=True, related_name='orders')
     coupon_type = models.CharField(_('coupon type'), max_length=20, choices=Coupon.COUPON_TYPE_CHOICES, blank=True)
     coupon_mode = models.CharField(_('coupon mode'), max_length=20, choices=Coupon.COUPON_MODE_CHOICES, blank=True)
@@ -96,6 +99,9 @@ class Order(models.Model):
 
         return o[0].product_count
 
+    def __str__(self):
+        return '{}'.format(self.identifier if self.identifier else self.pk)
+
     class Meta:
         verbose_name = _('order')
         verbose_name_plural = _('orders')
@@ -103,7 +109,7 @@ class Order(models.Model):
 
 
 class OrderLine(models.Model):
-    order = models.ForeignKey(Order, related_name='lines')
+    order = ParentalKey(Order, related_name='lines')
     sku = models.CharField(_('SKU'), max_length=128)
     product_thumbnail = models.ImageField(_('product thumbnail'), blank=True, null=True)
     product_variant = models.ForeignKey('wagtailcommerce_products.ProductVariant', related_name='lines',
