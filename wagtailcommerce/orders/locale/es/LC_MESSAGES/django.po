@@ -1,0 +1,128 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-03-16 17:17-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Rafael Ponieman <rafa@wearetheplus.com>, 2018\n"
+"Language-Team: Spanish (https://www.transifex.com/wagtail-commerce/"
+"teams/84515/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Payment pending"
+msgstr "Pendiente de pago"
+
+msgid "Awaiting payment confirmation"
+msgstr "Esperando confirmación de pago"
+
+msgid "Awaiting payment authorization"
+msgstr "Esperando autorización de pago"
+
+msgid "Paid"
+msgstr "Pago"
+
+msgid "Cancelled"
+msgstr "Cancelado"
+
+msgid "identifier"
+msgstr "identificador"
+
+msgid "status"
+msgstr "estado"
+
+msgid "cart"
+msgstr "carrito"
+
+msgid "store"
+msgstr "tienda"
+
+msgid "user"
+msgstr "usuario"
+
+msgid "product sub total"
+msgstr "sub-total de productos"
+
+msgid "product discount"
+msgstr "descuento de productos"
+
+msgid "product tax"
+msgstr "impuestos de productos"
+
+msgid "shipping cost"
+msgstr "costo de envío"
+
+msgid "shipping cost discount"
+msgstr "descuento de costo de envío"
+
+msgid "shipping cost total"
+msgstr "costo de envío total"
+
+msgid "order total"
+msgstr "total del pedido"
+
+msgid "order total (inc. tax)"
+msgstr "total del pedido (incluyendo impuestos)"
+
+msgid "coupon"
+msgstr "cupón"
+
+msgid "coupon type"
+msgstr "tipo de cupón"
+
+msgid "coupon mode"
+msgstr "modalidad de cupón"
+
+msgid "coupon amount"
+msgstr "monto de cupón"
+
+msgid "coupon code"
+msgstr "código de cupón"
+
+msgid "order"
+msgstr "pedido"
+
+msgid "orders"
+msgstr "pedidos"
+
+msgid "SKU"
+msgstr "SKU"
+
+msgid "product thumbnail"
+msgstr "miniatura del producto"
+
+msgid "quantity"
+msgstr "cantidad"
+
+msgid "item price"
+msgstr "precio del ítem"
+
+msgid "item discount"
+msgstr "descuento del ítem"
+
+msgid "item price with discount"
+msgstr "precio del ítem con descuento"
+
+msgid "total"
+msgstr "total"
+
+msgid "product name"
+msgstr "nombre del producto"
+
+msgid "product variant description"
+msgstr "descripción de variante de producto"
+
+msgid "order line"
+msgstr "línea del pedido"
+
+msgid "order lines"
+msgstr "líneas del pedido"
