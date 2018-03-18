@@ -23,7 +23,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
     order_billing_address.user = None
     order_billing_address.save()
 
-    totals = cart.get_totals(shipping_address)
+    totals = cart.get_totals_with_shipping(shipping_address)
 
     order = Order.objects.create(
         cart=cart,

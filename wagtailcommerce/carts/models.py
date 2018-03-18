@@ -132,10 +132,22 @@ class Cart(models.Model):
     def get_shipping_cost(self, address):
         return get_shipping_cost_util(self, address)
 
-    def get_totals(self, address):
+    def get_totals(self):
         subtotal = self.get_subtotal()
         discount = self.get_discount()
-        shipping_cost = self.get_shipping_cost(address)
+
+        return {
+            'subtotal': subtotal,
+            'discount': discount,
+            'total': subtotal - discount
+        }
+
+    def get_totals_with_shipping(self, address):
+        subtotal = self.get_subtotal()
+        discount = self.get_discount()
+
+        if address:
+            shipping_cost = self.get_shipping_cost(address)
 
         return {
             'subtotal': subtotal,

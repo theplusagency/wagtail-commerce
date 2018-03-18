@@ -60,8 +60,11 @@ class CartType(DjangoObjectType):
 
 
 class CartTotalsObjectType(graphene.ObjectType):
-    shipping_cost = graphene.Float()
-    shipping_discount = graphene.Float()
-    shipping_total = graphene.Float()
+    coupon_code = graphene.Field(graphene.String)
+    coupon_auto_assigned = graphene.Field(graphene.Boolean)
     discount = graphene.Field(graphene.Float)
+    shipping_cost = graphene.Float()
+    shipping_cost_discount = graphene.Float()
+    shipping_cost_total = graphene.Float()
+    subtotal = graphene.Field(graphene.Float)
     total = graphene.Field(graphene.Float)
