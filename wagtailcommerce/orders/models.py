@@ -76,6 +76,11 @@ class Order(ClusterableModel):
                     v = line.product_variant
                     v.stock = v.stock - line.quantity
                     v.save(update_fields=['stock'])
+
+                # Update coupon amount
+                if self.coupon:
+                    Coupon.objects.filter(pk=self.coupon.pk).update(times_used=models.F('times_used') + 1)
+
                 order_paid.send(Order, order=self)
         except Order.DoesNotExist:
             pass

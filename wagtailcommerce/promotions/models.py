@@ -1,7 +1,23 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from wagtail.wagtailadmin.edit_handlers import FieldPanel, FieldRowPanel, MultiFieldPanel
+
+
+class CouponManager(models.Manager):
+    def active(self):
+        """
+        Only valid, active coupons that can be used.
+        """
+        current_time = timezone.now()
+        return self.get_queryset().filter(
+            models.Q(valid_from__isnull=True) | models.Q(valid_from__lte=current_time),
+            models.Q(valid_until__isnull=True) | models.Q(valid_until__gte=current_time),
+            models.Q(usage_limit__isnull=True) | models.Q(usage_limit__gt=models.F('times_used')),
+            active=True
+        )
 
 
 class Coupon(models.Model):
@@ -25,6 +41,7 @@ class Coupon(models.Model):
         (COUPON_MODE_PERCENTAGE, _('Percentage')),
     )
 
+    # store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='coupons')
     name = models.CharField(_('name'), max_length=255)
     code = models.CharField(_('code'), max_length=40, unique=True, db_index=True)
 
@@ -33,8 +50,8 @@ class Coupon(models.Model):
     coupon_amount = models.DecimalField(_('coupon amount'), decimal_places=2, max_digits=12)
 
     usage_limit = models.PositiveIntegerField(_('usage limit'), null=True, blank=True)
-    added_to_cart = models.PositiveIntegerField(_('times added to cart'), default=0, editable=False)
-    used = models.PositiveIntegerField(_('times used'), default=0, editable=False)
+    times_added_to_cart = models.PositiveIntegerField(_('times added to cart'), default=0, editable=False)
+    times_used = models.PositiveIntegerField(_('times used'), default=0, editable=False)
 
     auto_assign_to_new_users = models.BooleanField(_('auto assign to new users'))
 
@@ -47,6 +64,8 @@ class Coupon(models.Model):
 
     created = models.DateTimeField(_('created on'), auto_now_add=True)
     modified = models.DateTimeField(_('modified on'), auto_now=True)
+
+    objects = CouponManager()
 
     panels = [
         MultiFieldPanel([
@@ -76,6 +95,30 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        # Verify coupon code doesn't repeat (ignoring case)
+        if self.code:
+            if ' ' in self.code:
+                raise ValidationError({'code': _('No spaces allowed in coupon code')})
+
+            # Is there an existing coupon with same code?
+            try:
+                coupon_query = Coupon.objects.all()
+
+                if self.pk:
+                    coupon_query = coupon_query.exclude(pk=self.pk)
+
+                coupon_query.get(code__iexact=self.code)
+            except Coupon.DoesNotExist:
+                pass
+
+            # Always save as uppercase for consistence. Coupon code lookups are not case sensitive.
+            self.code = self.code.upper()
+
+        # Don't allow 0 as a usage limit (it would mean total coupon deactivation)
+        if self.usage_limit == 0:
+            raise ValidationError({'usage_limit': _('Enter a value greater than 0 or leave this field empty.')})
 
     class Meta:
         verbose_name = _('coupon')

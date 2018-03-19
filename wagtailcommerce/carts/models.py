@@ -119,6 +119,14 @@ class Cart(models.Model):
                 subtotal = self.get_subtotal()
                 return subtotal * (self.coupon.coupon_amount / 100)
 
+            elif self.coupon.coupon_type == Coupon.ORDER_TOTAL and self.coupon.coupon_mode == Coupon.COUPON_MODE_FIXED:
+                subtotal = self.get_subtotal()
+
+                if self.coupon.coupon_amount > subtotal:
+                    return subtotal
+
+                return self.coupon.coupon_amount
+
         return Decimal('0')
 
     def get_item_count(self):

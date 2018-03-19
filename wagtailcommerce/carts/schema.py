@@ -1,14 +1,16 @@
 from django.utils.translation import ugettext_lazy as _
 
 import graphene
+
 from wagtailcommerce.addresses.models import Address
-from wagtailcommerce.carts.object_types import CartType, CartTotalsObjectType
+from wagtailcommerce.carts.object_types import CartReplyObjectType, CartTotalsObjectType
 from wagtailcommerce.carts.utils import get_cart_from_request
+from wagtailcommerce.promotions.utils import remove_coupon, verify_coupon
 from wagtailcommerce.shipping.exceptions import ShippingCostCalculationException
 
 
 class CartQuery(graphene.ObjectType):
-    cart = graphene.Field(CartType)
+    cart = graphene.Field(CartReplyObjectType)
 
     cart_totals = graphene.Field(
         lambda: CartTotalsObjectType,
@@ -41,4 +43,12 @@ class CartQuery(graphene.ObjectType):
     def resolve_cart(self, info, **kwargs):
         from wagtailcommerce.carts.utils import get_cart_from_request
 
-        return get_cart_from_request(info.context)
+        cart = get_cart_from_request(info.context)
+
+        coupon_removed = None
+
+        if cart.coupon and not verify_coupon(cart.coupon):
+            coupon_removed = cart.coupon.code
+            remove_coupon(cart)
+
+        return CartReplyObjectType(cart=cart, coupon_removed=coupon_removed)

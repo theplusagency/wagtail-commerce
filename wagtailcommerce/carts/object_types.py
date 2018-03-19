@@ -68,3 +68,8 @@ class CartTotalsObjectType(graphene.ObjectType):
     shipping_cost_total = graphene.Float()
     subtotal = graphene.Field(graphene.Float)
     total = graphene.Field(graphene.Float)
+
+
+class CartReplyObjectType(graphene.ObjectType):
+    cart = graphene.Field(lambda: CartType)
+    coupon_removed = graphene.Field(graphene.String)

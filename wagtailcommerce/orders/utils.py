@@ -27,6 +27,11 @@ def create_order(request, shipping_address, billing_address, cart=None):
 
     order = Order.objects.create(
         cart=cart,
+        coupon=cart.coupon if cart.coupon else None,
+        coupon_code=cart.coupon.code if cart.coupon else '',
+        coupon_type=cart.coupon.coupon_type if cart.coupon else '',
+        coupon_mode=cart.coupon.coupon_mode if cart.coupon else '',
+        coupon_amount=cart.coupon.coupon_amount if cart.coupon else None,
         store=request.store,
         user=request.user,
         shipping_address=order_shipping_address,

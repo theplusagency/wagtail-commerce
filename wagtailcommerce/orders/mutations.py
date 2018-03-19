@@ -6,10 +6,13 @@ import mercadopago
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from wagtailcommerce.addresses.models import Address
+from wagtailcommerce.carts.utils import get_cart_from_request
 from wagtailcommerce.orders.object_types import OrderObjectType
 from wagtailcommerce.orders.utils import create_order
+from wagtailcommerce.promotions.utils import remove_coupon, verify_coupon
 
 from mercadopago_payments.models import MercadoPagoBasicPayment, MercadoPagoBasicIPN
 
@@ -22,7 +25,7 @@ class PlaceOrder(graphene.Mutation):
     payment_redirect_url = graphene.String()
     success = graphene.Boolean()
     order = graphene.Field(lambda: OrderObjectType)
-    errors = graphene.List(graphene.String)
+    error = graphene.String()
 
     @transaction.atomic
     def mutate(self, info, shipping_address_pk, billing_address_pk, *args):
@@ -35,6 +38,13 @@ class PlaceOrder(graphene.Mutation):
             billing_address = Address.objects.get(user=info.context.user, pk=billing_address_pk)
         except Address.DoesNotExist:
             raise Exception
+
+        cart = get_cart_from_request(info.context)
+
+        if cart.coupon and not verify_coupon(cart.coupon):
+            coupon_code = cart.coupon.code
+            remove_coupon(cart)
+            return PlaceOrder(error=_('The coupon "{}" you were currently using is no longer valid. It may have expired or reached its maximum uses.'.format(coupon_code)))
 
         order = create_order(info.context, shipping_address, billing_address)
 
