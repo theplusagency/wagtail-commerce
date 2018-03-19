@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from wagtailcommerce.carts.utils import get_cart_from_request
 from wagtailcommerce.carts.exceptions import CartException
-from wagtailcommerce.carts.object_types import CartType, CartLineType
+from wagtailcommerce.carts.object_types import CartType
 
 
 class ModifyCartLine(graphene.Mutation):
@@ -73,4 +73,33 @@ class AddToCart(graphene.Mutation):
         except ProductVariant.DoesNotExist:
             return AddToCart(success=False, errors=[_('Product variant not found')])
 
-        return AddToCart(ok=ok, cart_line=cart_line_object_type)
+
+class UpdateCartCoupon(graphene.Mutation):
+    class Arguments:
+        delete = graphene.Boolean(required=False)
+        new_coupon_code = graphene.String(required=False)
+
+    success = graphene.Boolean()
+    cart = graphene.Field(lambda: CartType)
+    errors = graphene.List(graphene.String)
+
+    def mutate(self, info, delete=False, new_coupon_code=None, *args):
+        print(delete, new_coupon_code)
+        # from wagtailcommerce.carts.utils import add_to_cart
+        # from wagtailcommerce.products.models import ProductVariant
+
+        # try:
+        #     variant = ProductVariant.objects.get(pk=variant_pk, product__store=info.context.store)
+
+        #     if variant.stock < 1:
+        #         return AddToCart(success=False, errors=[_('No more products available for the selected size')], disableVariant=True)
+        #     else:
+        #         add_to_cart(info.context, variant)
+
+        #         return AddToCart(
+        #             success=True,
+        #             cart=get_cart_from_request(info.context)
+        #         )
+
+        # except ProductVariant.DoesNotExist:
+        #     return AddToCart(success=False, errors=[_('Product variant not found')])
