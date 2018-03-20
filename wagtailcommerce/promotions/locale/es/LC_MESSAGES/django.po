@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 17:28-0300\n"
+"POT-Creation-Date: 2018-03-20 08:50-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Rafael Ponieman <rafa@wearetheplus.com>, 2018\n"
 "Language-Team: Spanish (https://www.transifex.com/wagtail-commerce/"
@@ -21,6 +21,9 @@ msgstr ""
 
 msgid "Discount on order total"
 msgstr "Descuento en el total del pedido"
+
+msgid "Fixed amount"
+msgstr "Monto fijo"
 
 msgid "Percentage"
 msgstr "Porcentaje"
@@ -43,6 +46,12 @@ msgstr "monto del cupón"
 msgid "usage limit"
 msgstr "límite de usos"
 
+msgid "times added to cart"
+msgstr "# de veces agregado al carrito"
+
+msgid "times used"
+msgstr "# de veces utilizado"
+
 msgid "auto assign to new users"
 msgstr "asignar automáticamente a nuevos usuarios"
 
@@ -60,6 +69,24 @@ msgstr "auto-generado"
 
 msgid "created on"
 msgstr "creado"
+
+msgid "modified on"
+msgstr "modificado"
+
+msgid "basic information"
+msgstr "información básica"
+
+msgid "characteristics"
+msgstr "características"
+
+msgid "validity"
+msgstr "validez"
+
+msgid "No spaces allowed in coupon code"
+msgstr "No se permiten espacios en el código de cupón"
+
+msgid "Enter a value greater than 0 or leave this field empty."
+msgstr "Ingresa un valor mayor a 0 o deja el campo vacío."
 
 msgid "coupon"
 msgstr "cupón"

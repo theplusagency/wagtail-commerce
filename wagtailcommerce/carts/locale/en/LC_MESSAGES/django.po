@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 17:28-0300\n"
+"POT-Creation-Date: 2018-03-20 08:50-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,42 +58,42 @@ msgstr ""
 msgid "updated on"
 msgstr ""
 
-#: models.py:89 models.py:159
+#: models.py:89 models.py:179
 msgid "created on"
 msgstr ""
 
-#: models.py:150
+#: models.py:170
 msgid "cart"
 msgstr ""
 
-#: models.py:151
+#: models.py:171
 msgid "carts"
 msgstr ""
 
-#: models.py:156
+#: models.py:176
 msgid "product"
 msgstr ""
 
-#: models.py:157
+#: models.py:177
 msgid "quantity"
 msgstr ""
 
-#: models.py:201
+#: models.py:221
 msgid "cart line"
 msgstr ""
 
-#: models.py:202
+#: models.py:222
 msgid "cart lines"
 msgstr ""
 
-#: mutations.py:44 mutations.py:74
+#: mutations.py:45 mutations.py:75
 msgid "Product variant not found"
 msgstr ""
 
-#: mutations.py:64
+#: mutations.py:65
 msgid "No more products available for the selected size"
 msgstr ""
 
-#: schema.py:34
+#: schema.py:31
 msgid "Address not found"
 msgstr ""
