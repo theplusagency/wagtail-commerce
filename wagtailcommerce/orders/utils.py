@@ -49,18 +49,23 @@ def create_order(request, shipping_address, billing_address, cart=None):
     order_lines = []
 
     for line in cart.lines.select_related('variant', 'variant__product').all():
+        variant = line.variant.specific
         order_line = OrderLine(
             order=order,
-            sku=line.variant.sku,
-            product_variant=line.variant,
+            sku=variant.sku,
+            product_variant=variant,
             quantity=line.quantity,
             item_price=line.get_item_price(),
             item_discount=line.get_item_discount(),
             item_price_with_discount=line.get_item_price_with_discount(),
             line_total=line.get_total(),
-            product_name=line.variant.product.name,
-            product_variant_description=line.variant.__str__(),
-            product_details=line.variant.specific.get_details()
+            product_name=variant.product.name,
+            product_variant_description=variant.__str__(),
+            product_details=variant.get_details(),
+            weight=variant.weight,
+            width=variant.width,
+            height=variant.height,
+            depth=variant.depth
         )
 
         image = line.get_image()

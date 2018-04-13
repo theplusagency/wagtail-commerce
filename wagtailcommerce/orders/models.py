@@ -129,11 +129,41 @@ class OrderLine(models.Model):
     product_name = models.CharField(_('product name'), max_length=255)
     product_variant_description = models.CharField(_('product variant description'), max_length=255)
 
+    # Dimensions
+    weight = models.DecimalField(_('weight'), max_digits=12, decimal_places=2, help_text=_('value stored in grams'), blank=True, null=True)
+    width = models.DecimalField(_('width'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
+    height = models.DecimalField(_('height'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
+    depth = models.DecimalField(_('depth'), max_digits=12, decimal_places=2, help_text=_('value stored in millimeters'), blank=True, null=True)
+
     # Stores serialized custom product information
     product_details = JSONField()
 
     def __str__(self):
         return "{} ({})".format(self.product_name, self.quantity)
+
+    @property
+    def volume(self, unit=None):
+        return self.width * self.height * self.depth
+
+    @property
+    def volume_m3(self):
+        return self.volume / (1000000000)
+
+    @property
+    def weight_kg(self):
+        return self.weight / 1000
+
+    @property
+    def width_cm(self):
+        return self.width / 10
+
+    @property
+    def height_cm(self):
+        return self.height / 10
+
+    @property
+    def depth_cm(self):
+        return self.depth / 10
 
     class Meta:
         verbose_name = _('order line')
