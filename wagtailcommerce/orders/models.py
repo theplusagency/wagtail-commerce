@@ -8,9 +8,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
+from wagtail.wagtailadmin.edit_handlers import (FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList,
+                                                StreamFieldPanel, TabbedInterface)
 
 from wagtailcommerce.orders.signals import order_paid
 from wagtailcommerce.promotions.models import Coupon
+from wagtailcommerce.utils.edit_handlers import ReadOnlyPanel
 
 
 class Order(ClusterableModel):
@@ -18,6 +21,9 @@ class Order(ClusterableModel):
     AWAITING_PAYMENT_CONFIRMATION = 'awaiting_payment_confirmation'
     AWAITING_PAYMENT_AUTHORIZATION = 'awaiting_payment_authorization'
     PAID = 'paid'
+    SHIPMENT_GENERATED = 'shipment_generated'
+    SHIPPED = 'shipped'
+    DELIVERED = 'delivered'
     CANCELLED = 'cancellled'
 
     ORDER_STATUS_OPTIONS = (
@@ -25,6 +31,9 @@ class Order(ClusterableModel):
         (AWAITING_PAYMENT_CONFIRMATION, _('Awaiting payment confirmation')),
         (AWAITING_PAYMENT_AUTHORIZATION, _('Awaiting payment authorization')),
         (PAID, _('Paid')),
+        (SHIPMENT_GENERATED, _('Shipment generated')),
+        (SHIPPED, _('Shipped')),
+        (DELIVERED, _('Delivered')),
         (CANCELLED, _('Cancelled')),
     )
 
@@ -60,8 +69,50 @@ class Order(ClusterableModel):
     coupon_amount = models.DecimalField(_('coupon amount'), decimal_places=2, max_digits=12, blank=True, null=True)
     coupon_code = models.CharField(_('coupon code'), max_length=40, blank=True)
 
-    date_placed = models.DateTimeField(db_index=True, auto_now_add=True)
-    date_paid = models.DateTimeField(db_index=True, blank=True, null=True)
+    date_placed = models.DateTimeField(_('date placed'), db_index=True, auto_now_add=True)
+    date_paid = models.DateTimeField(_('date paid'), db_index=True, blank=True, null=True)
+
+    edit_handler = TabbedInterface([
+        ObjectList([
+            MultiFieldPanel([
+                FieldRowPanel([
+                    ReadOnlyPanel('identifier', heading=_('Identifier')),
+                    ReadOnlyPanel('get_status_display', heading=_('Status')),
+                ])
+            ], heading=_('Order details')),
+            MultiFieldPanel([
+                FieldRowPanel([
+                    ReadOnlyPanel('coupon_code', heading=_('Coupon code')),
+                ]),
+                FieldRowPanel([
+                    ReadOnlyPanel('get_coupon_type_display', heading=_('Coupon type')),
+                    ReadOnlyPanel('get_coupon_mode_display', heading=_('Coupon mode')),
+                    ReadOnlyPanel('coupon_amount', heading=_('Coupon amount')),
+                ])
+            ], heading=_('Discount')),
+            MultiFieldPanel([
+                FieldRowPanel([
+                    ReadOnlyPanel('shipping_cost', heading=_('Shipping cost')),
+                    ReadOnlyPanel('shipping_cost_discount', heading=_('Shipping cost discount')),
+                    ReadOnlyPanel('shipping_cost_total', heading=_('Shipping cost total')),
+                ]),
+                FieldRowPanel([
+                    ReadOnlyPanel('subtotal', heading=_('Subtotal')),
+                    ReadOnlyPanel('product_discount', heading=_('Product discount')),
+                    ReadOnlyPanel('product_tax', heading=_('Product tax')),
+                ]),
+                FieldRowPanel([
+                    ReadOnlyPanel('total', heading=_('Total')),
+                ]),
+            ], heading=_('Totals'))
+        ], heading=_('Basic info')),
+        ObjectList([
+            InlinePanel('lines'),
+        ], heading=_('Products')),
+        ObjectList([
+            InlinePanel('shipments'),
+        ], heading=_('Shipments')),
+    ])
 
     def save(self, *args, **kwargs):
         if not self.identifier:
@@ -138,6 +189,22 @@ class OrderLine(models.Model):
     # Stores serialized custom product information
     product_details = JSONField()
 
+    panels = [
+        FieldRowPanel([
+            ReadOnlyPanel('sku', heading=_('SKU')),
+            ReadOnlyPanel('product_variant_description', _('Variant'))
+        ]),
+        FieldRowPanel([
+            ReadOnlyPanel('quantity', heading=_('Quantity')),
+            ReadOnlyPanel('item_price', _('Item price')),
+        ]),
+        FieldRowPanel([
+            ReadOnlyPanel('quantity', heading=_('Quantity')),
+            ReadOnlyPanel('item_discount', _('Item discount')),
+            ReadOnlyPanel('line_total', _('Subtotal'))
+        ]),
+    ]
+
     def __str__(self):
         return "{} ({})".format(self.product_name, self.quantity)
 
@@ -149,21 +216,25 @@ class OrderLine(models.Model):
     def volume_m3(self):
         return self.volume / (1000000000)
 
-    @property
     def weight_kg(self):
-        return self.weight / 1000
+        if self.weight:
+            return self.weight / 1000
 
     @property
     def width_cm(self):
-        return self.width / 10
+        if self.width:
+            return self.width / 10
 
     @property
     def height_cm(self):
-        return self.height / 10
+        if self.height:
+            return self.height / 10
 
     @property
     def depth_cm(self):
-        return self.depth / 10
+        if self.depth:
+            return self.depth / 10
+        return ''
 
     class Meta:
         verbose_name = _('order line')

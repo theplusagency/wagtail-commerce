@@ -50,6 +50,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
 
     for line in cart.lines.select_related('variant', 'variant__product').all():
         variant = line.variant.specific
+
         order_line = OrderLine(
             order=order,
             sku=variant.sku,
