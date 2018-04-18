@@ -5,6 +5,7 @@ from django.core.files.base import ContentFile
 
 from wagtailcommerce.carts.utils import cart_awaiting_payment, cart_paid, get_cart_from_request, reopen_cart
 from wagtailcommerce.orders.models import Order, OrderLine
+from wagtailcommerce.orders.signals import shipment_generated
 
 from oca_shipping.models import OCAShippingMethod
 
@@ -81,6 +82,7 @@ def create_order(request, shipping_address, billing_address, cart=None):
                     order_line.product_thumbnail.save(file_name, file_content, save=False)
 
                     source_file.file.close()
+
                 except FileNotFoundError:
                     pass
 
@@ -126,6 +128,13 @@ def order_paid(order):
 
     if cart:
         cart_paid(cart)
+
+
+def order_shipment_generated(order):
+    if order.status != Order.SHIPMENT_GENERATED:
+        modify_order_status(order, Order.SHIPMENT_GENERATED)
+
+    shipment_generated.send(Order, order=order)
 
 
 def order_cancelled(order):
