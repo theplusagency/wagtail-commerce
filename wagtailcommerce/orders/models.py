@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
-from wagtail.wagtailadmin.edit_handlers import (FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList,
+from wagtail.admin.edit_handlers import (FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList,
                                                 StreamFieldPanel, TabbedInterface)
 
 from wagtailcommerce.orders.signals import order_paid

@@ -2,7 +2,7 @@ from django.forms.utils import pretty_name
 from django.template.defaultfilters import linebreaksbr
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-from wagtail.wagtailadmin.edit_handlers import EditHandler
+from wagtail.admin.edit_handlers import EditHandler
 
 
 class BaseReadOnlyPanel(EditHandler):

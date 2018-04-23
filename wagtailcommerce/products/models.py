@@ -12,9 +12,9 @@ from django.utils.translation import ugettext_lazy as _
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from treebeard.mp_tree import MP_Node
-from wagtail.wagtailadmin.edit_handlers import FieldPanel, InlinePanel
-from wagtail.wagtailcore.models import Orderable
-from wagtail.wagtailimages.edit_handlers import ImageChooserPanel
+from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
+from wagtail.core.models import Orderable
+from wagtail.images.edit_handlers import ImageChooserPanel
 
 from wagtailcommerce.products.query import CategoryQuerySet, ProductQuerySet, ProductVariantQuerySet
 from wagtailcommerce.utils.images import get_image_model

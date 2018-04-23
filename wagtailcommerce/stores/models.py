@@ -2,7 +2,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from wagtail.wagtailadmin.edit_handlers import FieldPanel
+from wagtail.admin.edit_handlers import FieldPanel
 
 
 class Currency(models.Model):

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from wagtail.wagtailadmin.edit_handlers import FieldPanel, FieldRowPanel, MultiFieldPanel
+from wagtail.admin.edit_handlers import FieldPanel, FieldRowPanel, MultiFieldPanel
 
 
 class CouponManager(models.Manager):

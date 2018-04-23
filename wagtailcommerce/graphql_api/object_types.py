@@ -4,7 +4,7 @@ from graphene_django.types import DjangoObjectType
 from wagtailcommerce.utils.images import get_image_model
 from wagtailcommerce.products.models import Image, ImageSet
 
-from wagtail.wagtailimages.models import Rendition
+from wagtail.images.models import Rendition
 
 
 WagtailImage = get_image_model(require_ready=False)
