@@ -5,7 +5,20 @@ from django.utils.translation import ugettext_lazy as _
 from wagtail.admin.edit_handlers import EditHandler
 
 
-class BaseReadOnlyPanel(EditHandler):
+class ReadOnlyPanel(EditHandler):
+    def __init__(self, attr, heading=None, classname='', *args, **kwargs):
+        super().__init__(heading=heading, classname=classname)
+        self.attr = attr
+        self.heading = pretty_name(self.attr) if heading is None else heading
+        self.classname = classname
+
+    def clone(self):
+        return self.__class__(
+            attr=self.attr,
+            heading=self.heading,
+            classname=self.classname,
+        )
+
     def render(self):
         value = getattr(self.instance, self.attr)
         if callable(value):
@@ -26,15 +39,3 @@ class BaseReadOnlyPanel(EditHandler):
             '<div class="field-content">{}</div>'
             '</div>',
             self.heading, _(':'), self.render())
-
-
-class ReadOnlyPanel:
-    def __init__(self, attr, heading=None, classname=''):
-        self.attr = attr
-        self.heading = pretty_name(self.attr) if heading is None else heading
-        self.classname = classname
-
-    def bind_to_model(self, model):
-        return type(str(_('ReadOnlyPanel')), (BaseReadOnlyPanel,),
-                    {'attr': self.attr, 'heading': self.heading,
-                     'classname': self.classname})
