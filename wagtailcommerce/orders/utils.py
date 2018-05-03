@@ -122,7 +122,8 @@ def order_awaiting_payment_confirmation(order):
 
 
 def order_paid(order):
-    modify_order_status(order, Order.PAID)
+    if order.status in [Order.PAYMENT_PENDING, Order.AWAITING_PAYMENT_AUTHORIZATION, Order.AWAITING_PAYMENT_CONFIRMATION]:
+        modify_order_status(order, Order.PAID)
 
     cart = getattr(order, 'cart', None)
 
