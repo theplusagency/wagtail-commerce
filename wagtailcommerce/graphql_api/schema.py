@@ -4,7 +4,7 @@ from wagtailcommerce.accounts.schema import UserQuery
 from wagtailcommerce.addresses.mutations import DeleteAddress, EditAddress
 from wagtailcommerce.carts.schema import CartQuery
 from wagtailcommerce.carts.mutations import AddToCart, ModifyCartLine, UpdateCartCoupon
-from wagtailcommerce.products.schema import CategoriesQuery
+from wagtailcommerce.products.schema import CategoriesQuery, ProductsQuery
 from wagtailcommerce.orders.schema import OrdersQuery
 from wagtailcommerce.orders.mutations import PlaceOrder
 from wagtailcommerce.shipping.schema import ShippingQuery
@@ -19,5 +19,5 @@ class WagtailCommerceMutations(graphene.ObjectType):
     update_cart_coupon = UpdateCartCoupon.Field()
 
 
-class WagtailCommerceQueries(CategoriesQuery, CartQuery, OrdersQuery, UserQuery, ShippingQuery, graphene.ObjectType):
+class WagtailCommerceQueries(CategoriesQuery, CartQuery, OrdersQuery, ProductsQuery, UserQuery, ShippingQuery, graphene.ObjectType):
     pass

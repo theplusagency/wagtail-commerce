@@ -1,7 +1,7 @@
 import graphene
 
-from wagtailcommerce.products.models import Category
-from wagtailcommerce.products.object_types import CategoryType
+from wagtailcommerce.products.models import Category, Product
+from wagtailcommerce.products.object_types import CategoryType, ProductType
 
 
 def process_category(category):
@@ -30,3 +30,10 @@ class CategoriesQuery(graphene.ObjectType):
             categories.append(process_category(category))
 
         return categories
+
+
+class ProductsQuery(graphene.ObjectType):
+    products2 = graphene.List(ProductType)
+
+    def resolve_products2(self, info, **kwargs):
+        return Product.objects.specific().all()

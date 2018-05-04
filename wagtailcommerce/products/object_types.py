@@ -11,9 +11,8 @@ class CategoryType(DjangoObjectType):
         model = Category
 
 
-class ProductType(DjangoObjectType):
-    class Meta:
-        model = Product
+class ProductType(graphene.ObjectType):
+    name = graphene.String()
 
 
 class ProductVariantType(DjangoObjectType):
