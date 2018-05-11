@@ -128,6 +128,7 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
 
     active = models.BooleanField(_('active'))
     available_on = models.DateTimeField(_('available on'), blank=True, null=True)
+    featured = models.BooleanField(_('featured'), default=False)
 
     content_type = models.ForeignKey(
         'contenttypes.ContentType',

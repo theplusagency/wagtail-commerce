@@ -35,6 +35,7 @@ class CategoriesQuery(graphene.ObjectType):
 
 class BaseProductSearchResult(graphene.ObjectType):
     num_pages = graphene.Int()
+    page_number = graphene.Int()
 
 
 class BaseProductsQuery(graphene.ObjectType):
@@ -43,7 +44,6 @@ class BaseProductsQuery(graphene.ObjectType):
         products = Product.objects.specific().all().filter(active=True)
 
         params = kwargs.keys()
-        print('querysetahaaaa')
         if 'parent_categories' in params and kwargs['parent_categories']:
             products = products.filter(categories__pk__in=kwargs['parent_categories'])
 
@@ -51,12 +51,9 @@ class BaseProductsQuery(graphene.ObjectType):
 
     @classmethod
     def resolve_product_search(cls, info, *args, **kwargs):
-        products = cls.get_products_queryset(cls, info, *args, **kwargs)
-        print('here')
+        products = cls.get_products_queryset(cls, info, *args, **kwargs).order_by('-featured', '-created')
 
         params = kwargs.keys()
-        print(params)
-        print(kwargs['page_size'])
 
         if 'page_number' in params:
             if 'page_size' in params:
@@ -67,10 +64,5 @@ class BaseProductsQuery(graphene.ObjectType):
             page_number = 1
             page_size = 10
 
-        print('psize: {}'.format(page_size))
         paginator = Paginator(products, page_size)
-        print(page_number)
-        print(paginator.count)
-        print(paginator.num_pages)
-        print(paginator.object_list)
-        return cls.get_search_result_class(cls)(products=paginator.page(page_number), num_pages=paginator.num_pages)
+        return cls.get_search_result_class(cls)(products=paginator.page(page_number), num_pages=paginator.num_pages, page_number=page_number)
