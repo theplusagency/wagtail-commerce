@@ -15,6 +15,7 @@ from treebeard.mp_tree import MP_Node
 from wagtail.admin.edit_handlers import FieldPanel, InlinePanel
 from wagtail.core.models import Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.search import index
 
 from wagtailcommerce.products.query import CategoryQuerySet, ProductQuerySet, ProductVariantQuerySet
 from wagtailcommerce.utils.images import get_image_model
@@ -111,7 +112,7 @@ class AbstractProduct(models.Model):
         abstract = True
 
 
-class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
+class Product(AbstractProduct, index.Indexed, ClusterableModel, metaclass=ProductBase):
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='products')
     name = models.CharField(_('name'), max_length=150)
     slug = models.SlugField(
@@ -139,6 +140,16 @@ class Product(AbstractProduct, ClusterableModel, metaclass=ProductBase):
 
     created = models.DateTimeField(_('created on'), auto_now_add=True)
     modified = models.DateTimeField(_('modified on'), auto_now=True)
+
+    search_fields = [
+        index.SearchField('name', boost=2),
+        index.FilterField('category_id'),
+        index.FilterField('price'),
+        index.FilterField('active'),
+        index.FilterField('available_on'),
+        index.FilterField('featured'),
+        index.FilterField('created'),
+    ]
 
     panels = [
         FieldPanel('store'),
