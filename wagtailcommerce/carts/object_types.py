@@ -73,3 +73,4 @@ class CartTotalsObjectType(graphene.ObjectType):
 class CartReplyObjectType(graphene.ObjectType):
     cart = graphene.Field(lambda: CartType)
     coupon_removed = graphene.Field(graphene.String)
+    coupon_auto_assigned = graphene.Field(graphene.String)

@@ -46,9 +46,15 @@ class CartQuery(graphene.ObjectType):
         cart = get_cart_from_request(info.context)
 
         coupon_removed = None
+        coupon_auto_assigned = None
 
-        if cart.coupon and not verify_coupon(cart.coupon):
-            coupon_removed = cart.coupon.code
+        if cart.coupon:
+            if cart.coupon.auto_assign_to_new_users:
+                coupon_auto_assigned = True
+
+            if not verify_coupon(cart.coupon):
+                coupon_removed = cart.coupon.code
+
             remove_coupon(cart)
 
-        return CartReplyObjectType(cart=cart, coupon_removed=coupon_removed)
+        return CartReplyObjectType(cart=cart, coupon_removed=coupon_removed, coupon_auto_assigned=coupon_auto_assigned)
