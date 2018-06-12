@@ -7,6 +7,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils import six
 from django.utils.functional import cached_property
+from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
 
 from modelcluster.fields import ParentalKey
@@ -143,7 +144,6 @@ class Product(AbstractProduct, index.Indexed, ClusterableModel, metaclass=Produc
 
     search_fields = [
         index.SearchField('name', boost=2),
-        index.FilterField('category_id'),
         index.FilterField('price'),
         index.FilterField('active'),
         index.FilterField('available_on'),
@@ -151,16 +151,16 @@ class Product(AbstractProduct, index.Indexed, ClusterableModel, metaclass=Produc
         index.FilterField('created'),
     ]
 
-    panels = [
-        FieldPanel('store'),
-        FieldPanel('name'),
-        FieldPanel('slug'),
-        FieldPanel('active'),
-        FieldPanel('available_on'),
-        FieldPanel('categories'),
-        FieldPanel('single_price'),
-        FieldPanel('price'),
-    ]
+    # panels = [
+    #     FieldPanel('store'),
+    #     FieldPanel('name'),
+    #     FieldPanel('slug'),
+    #     FieldPanel('active'),
+    #     FieldPanel('available_on'),
+    #     FieldPanel('categories'),
+    #     FieldPanel('single_price'),
+    #     FieldPanel('price'),
+    # ]
 
     def __str__(self):
         return self.name
@@ -174,6 +174,15 @@ class Product(AbstractProduct, index.Indexed, ClusterableModel, metaclass=Produc
                 # set content type to correctly represent the model class
                 # that this was created as
                 self.content_type = ContentType.objects.get_for_model(self)
+
+    @classmethod
+    def get_verbose_name(cls):
+        """
+        Returns the human-readable "verbose name" of this product model e.g "Clothing product".
+        """
+        # This is similar to doing cls._meta.verbose_name.title()
+        # except this doesn't convert any characters to lowercase
+        return capfirst(cls._meta.verbose_name)
 
     def save(self, *args, **kwargs):
         if not self.identifier:
