@@ -42,44 +42,17 @@ def get_default_product_variant_content_type():
     return ContentType.objects.get_for_model(ProductVariant)
 
 
-class BaseCategoryManager(models.Manager):
-    def get_queryset(self):
-        return self._queryset_class(self.model).order_by('path')
-
-
-CategoryManager = BaseCategoryManager.from_queryset(CategoryQuerySet)
-
-
-class CategoryBase(models.base.ModelBase):
-    """
-    Metaclass for Category
-    """
-    def __init__(cls, name, bases, dct):
-        super(CategoryBase, cls).__init__(name, bases, dct)
-
-        if not cls._meta.abstract:
-            # register this type in the list of category content types
-            CATEGORY_MODEL_CLASSES.append(cls)
-
-
-class AbstractCategory(MP_Node):
-    """
-    Abstract superclass for Category.
-    """
-    objects = CategoryManager()
-
-    class Meta:
-        abstract = True
-
-
-class Category(AbstractCategory, ClusterableModel, metaclass=CategoryBase):
+class Category(MP_Node):
     store = models.ForeignKey('wagtailcommerce_stores.Store', related_name='categories')
     name = models.CharField(_('name'), max_length=150)
     slug = models.SlugField(_('slug'), max_length=50)
     description = models.TextField(_('description'), blank=True)
 
+    def category_path(self):
+        return list(self.get_ancestors().values_list('name', flat=True)) + [self.name]
+
     def __str__(self):
-        return self.name
+        return ' » '.join(self.category_path())
 
     class Meta:
         verbose_name = _('category')
