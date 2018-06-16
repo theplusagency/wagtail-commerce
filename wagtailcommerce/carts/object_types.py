@@ -3,17 +3,20 @@ from graphene_django.types import DjangoObjectType
 
 from wagtailcommerce.carts.models import Cart, CartLine
 from wagtailcommerce.graphql_api.object_types import WagtailImageType
-from wagtailcommerce.products.object_types import ProductVariantType
-from products.object_types import PeakShoeVariantType
+from products.schema import ProductUnion, ProductVariantUnion
 
 
 class CartLineType(DjangoObjectType):
     main_image = graphene.Field(WagtailImageType)
-    variant = graphene.Field(PeakShoeVariantType)
+    product = graphene.Field(ProductUnion)
+    variant = graphene.Field(ProductVariantUnion)
     item_price = graphene.Float()
     item_discount = graphene.Float()
     item_price_with_discount = graphene.Float()
     total = graphene.Float()
+
+    def resolve_product(self, info, **kwargs):
+        return self.variant.product.specific
 
     def resolve_main_image(self, info, **kwargs):
         return self.get_image()
