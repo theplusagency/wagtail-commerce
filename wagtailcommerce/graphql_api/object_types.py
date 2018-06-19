@@ -25,7 +25,6 @@ class WagtailImageType(DjangoObjectType):
             params['filter_spec__in'] = filter_specs
 
         rend = self.renditions.filter(**params)
-        print(rend)
         return rend
 
     class Meta:
@@ -44,10 +43,22 @@ class ImageType(DjangoObjectType):
 
 
 class ImageSetType(DjangoObjectType):
-    images = graphene.List(ImageType)
+    images = graphene.List(ImageType, limit=graphene.Argument(graphene.Int))
+    object_id = graphene.String(required=False)
 
-    def resolve_images(self, info):
-        return self.images.all().order_by()
+    def resolve_object_id(self, info, limit=None):
+        if self.object_id:
+            return str(self.object_id)
+
+        return self.object_id
+
+    def resolve_images(self, info, limit=None):
+        images = self.images.all().order_by()
+
+        if limit:
+            return images[:limit]
+
+        return images
 
     class Meta:
         model = ImageSet

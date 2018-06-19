@@ -53,8 +53,6 @@ class BaseProductsQuery(graphene.ObjectType):
     def resolve_product_search(cls, info, *args, **kwargs):
         products = cls.get_products_queryset(cls, info, *args, **kwargs).order_by('-featured', '-created')
 
-        print(args)
-        print(kwargs)
         params = kwargs.keys()
 
         if 'page_number' in params:
