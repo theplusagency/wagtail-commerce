@@ -51,7 +51,6 @@ def get_cart_from_request(request):
         if not cart.coupon:
             # Look for auto-assignment coupons
             try:
-                print(Coupon.objects.active().all())
                 coupon = Coupon.objects.active().filter(auto_assign_to_new_users=True).latest('created')
 
                 apply_coupon(coupon.code, cart)

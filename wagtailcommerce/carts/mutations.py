@@ -90,7 +90,6 @@ class UpdateCartCoupon(graphene.Mutation):
             return UpdateCartCoupon(success=True)
         elif new_coupon_code:
             result = apply_coupon(new_coupon_code, cart)
-            print(result)
 
             if result:
                 return UpdateCartCoupon(success=True)
