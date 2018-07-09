@@ -2,7 +2,9 @@ from wagtailcommerce.stores.utils import get_store
 
 
 def store(request):
+    store = getattr(request, 'store', None)
+
     return {
-        'store': request.store,
-        'store_currency': request.store.currency if request.store else ''
+        'store': store,
+        'store_currency': store.currency if store else ''
     }
