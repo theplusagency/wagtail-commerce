@@ -1,6 +1,8 @@
 from django.core.paginator import Paginator
 import graphene
 
+from django.db.models import Q
+
 from wagtailcommerce.products.models import Category, Product
 from wagtailcommerce.products.object_types import CategoryType, ProductType
 
@@ -41,7 +43,10 @@ class BaseProductSearchResult(graphene.ObjectType):
 class BaseProductsQuery(graphene.ObjectType):
 
     def get_products_queryset(cls, info, *args, **kwargs):
-        products = Product.objects.specific().all().filter(active=True)
+        if info.context.user.is_staff:
+            products = Product.objects.specific().all().filter(Q(active=True) | Q(preview_enabled=True))
+        else:
+            products = Product.objects.specific().all().filter(active=True)
 
         params = kwargs.keys()
         if 'parent_categories' in params and kwargs['parent_categories']:
@@ -65,6 +70,9 @@ class BaseProductsQuery(graphene.ObjectType):
                 },
                 order_by=('ordering', )
             )
+
+        if 'related_to' in params:
+            products = products.order_by('?')
 
         if 'page_number' in params:
             if 'page_size' in params:
