@@ -55,6 +55,17 @@ class BaseProductsQuery(graphene.ObjectType):
 
         params = kwargs.keys()
 
+        if 'product_pks' in params:
+            clauses = ' '.join(['WHEN id=%s THEN %s' % (pk, i) for i, pk in enumerate(kwargs['product_pks'])])
+            ordering = 'CASE %s END' % clauses
+
+            products = products.filter(pk__in=kwargs['product_pks']).extra(
+                select={
+                    'ordering': ordering
+                },
+                order_by=('ordering', )
+            )
+
         if 'page_number' in params:
             if 'page_size' in params:
                 page_size = kwargs['page_size']
