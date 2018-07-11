@@ -102,6 +102,8 @@ class Product(AbstractProduct, index.Indexed, ClusterableModel, metaclass=Produc
     identifier = models.CharField(_('identifier'), max_length=8, db_index=True, unique=True)
 
     active = models.BooleanField(_('active'))
+    purchasing_enabled = models.BooleanField(_('purchasing enabled'), default=True)
+    presale = models.BooleanField(_('presale'), default=False)
     preview_enabled = models.BooleanField(_('preview enabled'), default=False)
     available_on = models.DateTimeField(_('available on'), blank=True, null=True)
     featured = models.BooleanField(_('featured'), default=False)
