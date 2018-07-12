@@ -89,6 +89,16 @@ class PlaceOrder(graphene.Mutation):
             },
             'auto_return': 'approved',
             'external_reference': order.identifier,
+            'payment_methods': {
+                'excluded_payment_types': [
+                    {
+                        'id': 'ticket'
+                    },
+                    {
+                        'id': 'atm'
+                    }
+                ],
+            }
         }
 
         preference_result = mp.create_preference(preference)
