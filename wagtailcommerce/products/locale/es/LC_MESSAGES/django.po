@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 17:28-0300\n"
+"POT-Creation-Date: 2018-07-12 05:10-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Rafael Ponieman <rafa@wearetheplus.com>, 2018\n"
 "Language-Team: Spanish (https://www.transifex.com/wagtail-commerce/"
@@ -56,8 +56,20 @@ msgstr "identificador"
 msgid "active"
 msgstr "activo"
 
+msgid "purchasing enabled"
+msgstr "compra habilitada"
+
+msgid "presale"
+msgstr "preventa"
+
+msgid "preview enabled"
+msgstr "previsualización habilitada"
+
 msgid "available on"
 msgstr "disponible desde"
+
+msgid "featured"
+msgstr "destacado"
 
 msgid "content type"
 msgstr "tipo de contenido"

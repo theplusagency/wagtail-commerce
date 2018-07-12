@@ -17,26 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: models.py:75 models.py:141
-msgid "content type"
-msgstr ""
-
-#: models.py:137
-msgid "tracking code"
-msgstr ""
-
-#: models.py:146
-msgid "created on"
-msgstr ""
-
-#: models.py:181
-msgid "shipment"
-msgstr ""
-
-#: models.py:182
-msgid "shipments"
-msgstr ""
-
-#: schema.py:22
-msgid "Address not found"
+#: edit_handlers.py:41
+msgid ":"
 msgstr ""
