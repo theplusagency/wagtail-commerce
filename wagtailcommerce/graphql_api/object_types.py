@@ -53,7 +53,7 @@ class ImageSetType(DjangoObjectType):
         return self.object_id
 
     def resolve_images(self, info, limit=None):
-        images = self.images.all().order_by()
+        images = self.images.all()
 
         if limit:
             return images[:limit]
