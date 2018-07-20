@@ -219,7 +219,8 @@ class CartLine(models.Model):
     def get_item_discount(self):
         if self.cart.coupon:
             if self.cart.coupon.coupon_type == Coupon.ORDER_TOTAL and self.cart.coupon.coupon_mode == Coupon.COUPON_MODE_PERCENTAGE:
-                return self.get_item_price() * (self.cart.coupon.coupon_amount / 100)
+                if not self.cart.coupon.categories or len(set(self.variant.product.categories.values_list('pk', flat=True)) & set(self.cart.coupon.categories.values_list('pk', flat=True))):
+                    return self.get_item_price() * (self.cart.coupon.coupon_amount / 100)
 
         return Decimal('0')
 
