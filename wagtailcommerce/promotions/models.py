@@ -60,6 +60,12 @@ class Coupon(models.Model):
     valid_from = models.DateTimeField(_('valid from'), blank=True, null=True)
     valid_until = models.DateTimeField(_('valid until'), blank=True, null=True)
 
+    categories = models.ManyToManyField(
+        'wagtailcommerce_products.Category', related_name='coupons', blank=True,
+        help_text=_('Only apply to products in selected categories'),
+        limit_choices_to={'numchild': 0}
+    )
+
     auto_generated = models.BooleanField(_('auto generated'), editable=False, default=False)
 
     created = models.DateTimeField(_('created on'), auto_now_add=True)
@@ -83,6 +89,9 @@ class Coupon(models.Model):
             FieldRowPanel([
                 FieldPanel('usage_limit'),
                 FieldPanel('auto_assign_to_new_users'),
+            ]),
+            FieldRowPanel([
+                FieldPanel('categories'),
             ])
         ], heading=_('characteristics')),
         MultiFieldPanel([

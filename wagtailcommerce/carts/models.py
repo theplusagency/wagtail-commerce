@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import pgettext_lazy, ugettext_lazy as _
 
+from wagtailcommerce.products.models import Product
 from wagtailcommerce.promotions.models import Coupon
 from wagtailcommerce.shipping.utils import get_shipping_cost as get_shipping_cost_util
 
@@ -116,8 +117,19 @@ class Cart(models.Model):
     def get_discount(self):
         if self.coupon:
             if self.coupon.coupon_type == Coupon.ORDER_TOTAL and self.coupon.coupon_mode == Coupon.COUPON_MODE_PERCENTAGE:
-                subtotal = self.get_subtotal()
-                return subtotal * (self.coupon.coupon_amount / 100)
+                if not self.coupon.categories:
+                    subtotal = self.get_subtotal()
+                    return subtotal * (self.coupon.coupon_amount / 100)
+                else:
+                    discounted_product_ids = Product.objects.filter(categories__in=self.coupon.categories.values_list('pk', flat=True)).values_list('pk', flat=True)
+
+                    total_discount = Decimal('0')
+
+                    for line in self.lines.all():
+                        if line.variant.product.pk in discounted_product_ids:
+                            total_discount += line.variant.product.price * Decimal(line.quantity) * (self.coupon.coupon_amount / 100)
+
+                    return total_discount
 
             elif self.coupon.coupon_type == Coupon.ORDER_TOTAL and self.coupon.coupon_mode == Coupon.COUPON_MODE_FIXED:
                 subtotal = self.get_subtotal()
