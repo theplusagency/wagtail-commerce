@@ -125,10 +125,10 @@ def order_paid(order):
     if order.status in [Order.PAYMENT_PENDING, Order.AWAITING_PAYMENT_AUTHORIZATION, Order.AWAITING_PAYMENT_CONFIRMATION]:
         modify_order_status(order, Order.PAID)
 
-    cart = getattr(order, 'cart', None)
+        cart = getattr(order, 'cart', None)
 
-    if cart:
-        cart_paid(cart)
+        if cart:
+            cart_paid(cart)
 
 
 def order_shipment_generated(order):
