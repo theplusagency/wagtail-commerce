@@ -108,6 +108,14 @@ class Product(AbstractProduct, index.Indexed, ClusterableModel, metaclass=Produc
     available_on = models.DateTimeField(_('available on'), blank=True, null=True)
     featured = models.BooleanField(_('featured'), default=False)
 
+    seo_title = models.CharField(
+        verbose_name=_("page title"),
+        max_length=255,
+        blank=True,
+        help_text=_("Optional. 'Search Engine Friendly' title. This will appear at the top of the browser window.")
+    )
+    search_description = models.TextField(verbose_name=_('search description'), blank=True)
+
     content_type = models.ForeignKey(
         'contenttypes.ContentType',
         verbose_name=_('content type'),
