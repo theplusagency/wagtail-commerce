@@ -1,10 +1,13 @@
+from __future__ import absolute_import, unicode_literals
+
 from decimal import Decimal
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.utils.translation import pgettext_lazy, ugettext_lazy as _
+from django.utils.translation import pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 
 from wagtailcommerce.products.models import Product
 from wagtailcommerce.promotions.models import Coupon

@@ -5,7 +5,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.dispatch import receiver
-from django.utils import six
 from django.utils.functional import cached_property
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
@@ -18,7 +17,7 @@ from wagtail.core.models import Orderable
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
 
-from wagtailcommerce.products.query import CategoryQuerySet, ProductQuerySet, ProductVariantQuerySet
+from wagtailcommerce.products.query import ProductQuerySet, ProductVariantQuerySet
 from wagtailcommerce.utils.images import get_image_model
 
 CATEGORY_MODEL_CLASSES = []
@@ -276,7 +275,7 @@ class ProductVariantBase(models.base.ModelBase):
             PRODUCT_VARIANT_MODEL_CLASSES.append(cls)
 
 
-class ProductVariant(six.with_metaclass(ProductVariantBase, AbstractProductVariant, ClusterableModel)):
+class ProductVariant(AbstractProductVariant, ClusterableModel, metaclass=ProductVariantBase):
     product = ParentalKey(Product, related_name='variants')
     sku = models.CharField(_('SKU'), max_length=32, unique=True)
     name = models.CharField(_('name'), max_length=100, blank=True)

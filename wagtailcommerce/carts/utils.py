@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+
 from wagtailcommerce.carts.exceptions import CartException
 from wagtailcommerce.carts.models import Cart, CartLine
 from wagtailcommerce.promotions.models import Coupon
@@ -201,3 +203,15 @@ def reopen_cart(cart):
 
     if not open_cart_exists:
         modify_cart_status(cart, Cart.OPEN)
+
+
+def verify_cart_lines_stock(cart):
+    no_stock_variants = []
+
+    for line in cart.lines.all():
+        if line.variant.stock <= 0 or line.variant.active is False or line.variant.product.active is False or not line.variant.product.purchasing_enabled:
+            no_stock_variants.append(line.variant)
+
+            line.delete()
+
+    return no_stock_variants

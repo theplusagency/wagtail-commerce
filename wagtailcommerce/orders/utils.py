@@ -1,13 +1,14 @@
+from __future__ import absolute_import, unicode_literals
+
 import os
 from decimal import Decimal
 
 from django.core.files.base import ContentFile
 
-from wagtailcommerce.carts.utils import cart_awaiting_payment, cart_paid, get_cart_from_request, reopen_cart
+from wagtailcommerce.carts.utils import (
+    cart_awaiting_payment, cart_paid, get_cart_from_request)
 from wagtailcommerce.orders.models import Order, OrderLine
 from wagtailcommerce.orders.signals import shipment_generated
-
-from oca_shipping.models import OCAShippingMethod
 
 
 def create_order(request, shipping_address, billing_address, cart=None):
