@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from wagtailcommerce.carts.exceptions import CartException
-from wagtailcommerce.carts.models import Cart, CartLine
+from wagtailcommerce.carts.models import CartLine
 from wagtailcommerce.promotions.models import Coupon
 from wagtailcommerce.promotions.utils import apply_coupon
 
@@ -32,6 +32,13 @@ def get_user_cart(store, user):
     from wagtailcommerce.carts.models import Cart
 
     return Cart.objects.open().from_store(store).for_user(user).first()
+
+
+def can_purchase_variant(user, variant):
+    if (variant.stock <= 0 or not variant.product.purchasing_enabled or (
+            variant.active is False or variant.product.active is False) and not (user.is_staff and variant.product.preview_enabled)):
+        return False
+    return True
 
 
 def get_cart_from_request(request):
@@ -66,6 +73,8 @@ def get_cart_from_request(request):
 
 
 def merge_carts(user, request):
+    from wagtailcommerce.carts.models import Cart
+
     try:
         db_cart = Cart.objects.from_store(request.store).for_user(user).open().latest('created')
     except Cart.DoesNotExist:
@@ -199,17 +208,19 @@ def cart_paid(cart):
 
 
 def reopen_cart(cart):
+    from wagtailcommerce.carts.models import Cart
+
     open_cart_exists = Cart.objects.filter(user=cart.user, store=cart.store, status=Cart.OPEN).exists()
 
     if not open_cart_exists:
         modify_cart_status(cart, Cart.OPEN)
 
 
-def verify_cart_lines_stock(cart):
+def verify_cart_lines_stock(user, cart):
     no_stock_variants = []
 
     for line in cart.lines.all():
-        if line.variant.stock <= 0 or line.variant.active is False or line.variant.product.active is False or not line.variant.product.purchasing_enabled:
+        if not can_purchase_variant(user, line.variant):
             no_stock_variants.append(line.variant)
 
             line.delete()

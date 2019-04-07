@@ -43,7 +43,7 @@ class PlaceOrder(graphene.Mutation):
             remove_coupon(cart)
             place_order_error = _('The coupon "{}" you were currently using is no longer valid. It may have expired or reached its maximum uses.').format(coupon_code)
 
-        removed_variants = verify_cart_lines_stock(cart)
+        removed_variants = verify_cart_lines_stock(info.context.user, cart)
 
         if removed_variants:
             for variant in removed_variants:
@@ -52,7 +52,7 @@ class PlaceOrder(graphene.Mutation):
                 place_order_error += _('The product {} is no longer available.').format(variant)
 
         if place_order_error:
-            return PlaceOrder(error=place_order_error)
+            return PlaceOrder(error=place_order_error, success=False)
 
         method = PaymentMethod.objects.specific().filter(active=True).first()
 

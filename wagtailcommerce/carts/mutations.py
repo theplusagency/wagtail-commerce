@@ -1,9 +1,11 @@
+from __future__ import absolute_import, unicode_literals
+
 import graphene
 from django.utils.translation import ugettext_lazy as _
 
-from wagtailcommerce.carts.utils import get_cart_from_request
 from wagtailcommerce.carts.exceptions import CartException
 from wagtailcommerce.carts.object_types import CartType
+from wagtailcommerce.carts.utils import can_purchase_variant, get_cart_from_request
 from wagtailcommerce.promotions.utils import apply_coupon, remove_coupon
 
 
@@ -61,8 +63,8 @@ class AddToCart(graphene.Mutation):
         try:
             variant = ProductVariant.objects.get(pk=variant_pk, product__store=info.context.store)
 
-            if variant.stock < 1:
-                return AddToCart(success=False, errors=[_('No more products available for the selected size')], disableVariant=True)
+            if not can_purchase_variant(info.context.user, variant):
+                return AddToCart(success=False, errors=[_('No more products available for the selected size.')], disableVariant=True)
             else:
                 add_to_cart(info.context, variant)
 
